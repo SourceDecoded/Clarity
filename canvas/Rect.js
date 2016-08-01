@@ -1,12 +1,16 @@
 "use strict";
-class Rect {
-    constructor(x = 0, y = 0, width = 0, height = 0) {
+var Rect = (function () {
+    function Rect(x, y, width, height) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        if (width === void 0) { width = 0; }
+        if (height === void 0) { height = 0; }
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
     }
-    static getIntersection(rect1, rect2) {
+    Rect.getIntersection = function (rect1, rect2) {
         var result = {
             x: 0,
             y: 0,
@@ -27,7 +31,8 @@ class Rect {
             return null;
         }
         return result;
-    }
-}
+    };
+    return Rect;
+}());
 module.exports = Rect;
 //# sourceMappingURL=Rect.js.map

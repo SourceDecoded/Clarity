@@ -1,38 +1,39 @@
 "use strict";
-class KeyboardInputManager {
-    constructor(document) {
+var KeyboardInputManager = (function () {
+    function KeyboardInputManager(document) {
         this.document = document;
         this.keys = {};
         this.mapping = {};
         this.controllers = [];
     }
-    registerController(controller) {
+    KeyboardInputManager.prototype.registerController = function (controller) {
         this.controllers.push(controller);
-    }
-    onKeyDown(event) {
+    };
+    KeyboardInputManager.prototype.onKeyDown = function (event) {
         this.keys[event.keyCode] = true;
-    }
-    onKeyUp(event) {
+    };
+    KeyboardInputManager.prototype.onKeyUp = function (event) {
         this.keys[event.keyCode] = false;
-    }
-    start() {
+    };
+    KeyboardInputManager.prototype.start = function () {
         this.keyDownListener = this.onKeyDown.bind(this);
         this.keyUpListener = this.onKeyUp.bind(this);
         this.document.addEventListener("keydown", this.keyDownListener);
         this.document.addEventListener("keyup", this.keyUpListener);
-    }
-    stop() {
+    };
+    KeyboardInputManager.prototype.stop = function () {
+        var _this = this;
         this.document.removeEventListener("keydown", this.keyDownListener);
         this.document.removeEventListener("keyup", this.keyUpListener);
-        Object.keys(this.keys).forEach((key) => {
-            this.keys[key] = false;
+        Object.keys(this.keys).forEach(function (key) {
+            _this.keys[key] = false;
         });
-    }
-    update() {
+    };
+    KeyboardInputManager.prototype.update = function () {
         var keys = this.keys;
         var mapping = this.mapping;
-        this.controllers.forEach((controller) => {
-            Object.keys(mapping).forEach((command) => {
+        this.controllers.forEach(function (controller) {
+            Object.keys(mapping).forEach(function (command) {
                 var isPressed = keys[mapping[command]];
                 if (isPressed) {
                     controller.command(command);
@@ -40,11 +41,12 @@ class KeyboardInputManager {
                 return !isPressed;
             });
         });
-    }
-    addCommand(key, command) {
+    };
+    KeyboardInputManager.prototype.addCommand = function (key, command) {
         this.mapping[command] = key;
         this.keys[key] = false;
-    }
-}
+    };
+    return KeyboardInputManager;
+}());
 module.exports = KeyboardInputManager;
 //# sourceMappingURL=KeyboardInputManager.js.map

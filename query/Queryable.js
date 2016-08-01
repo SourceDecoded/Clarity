@@ -1,7 +1,7 @@
 "use strict";
-const ExpressionPackage = require("./Expression");
-const ExpressionBuilder = require("./ExpressionBuilder");
-const clone = require("../util/clone");
+var ExpressionPackage = require("./Expression");
+var ExpressionBuilder = require("./ExpressionBuilder");
+var clone = require("../util/clone");
 var Expression = ExpressionPackage.Expression;
 var OperationExpression = ExpressionPackage.OperationExpression;
 var ValueExpression = ExpressionPackage.ValueExpression;
@@ -20,8 +20,8 @@ var copyQuery = function (query) {
     copy.skip = query.skip;
     return copy;
 };
-class Queryable {
-    constructor(Type, query) {
+var Queryable = (function () {
+    function Queryable(Type, query) {
         this.skip = function (value) {
             if (typeof value !== "number") {
                 throw new Error("Illegal Argument Exception: value needs to be a number.");
@@ -88,19 +88,19 @@ class Queryable {
             this.query.orderBy = OperationExpression.orderBy();
         }
     }
-    assertHasProvider() {
+    Queryable.prototype.assertHasProvider = function () {
         if (typeof this.provider === "undefined") {
             throw new Error("No provider found.");
         }
-    }
-    getExpression() {
+    };
+    Queryable.prototype.getExpression = function () {
         return this.query;
-    }
+    };
     ;
-    getQuery() {
+    Queryable.prototype.getQuery = function () {
         return this.query;
-    }
-    or(lambda) {
+    };
+    Queryable.prototype.or = function (lambda) {
         var rightExpression;
         var query = copyQuery(this.getQuery());
         if (typeof lambda === "function") {
@@ -121,9 +121,9 @@ class Queryable {
             query.where.children.push(OperationExpression.or(leftExpression, rightExpression));
         }
         return this.copy(query);
-    }
+    };
     ;
-    where(lambda) {
+    Queryable.prototype.where = function (lambda) {
         var rightExpression;
         var query = copyQuery(this.getQuery());
         if (typeof lambda === "function") {
@@ -144,35 +144,35 @@ class Queryable {
             query.where.children.push(OperationExpression.and(leftExpression, rightExpression));
         }
         return this.copy(query);
-    }
+    };
     ;
-    and() {
+    Queryable.prototype.and = function () {
         return this.where.apply(this, arguments);
-    }
-    take(value) {
+    };
+    Queryable.prototype.take = function (value) {
         if (typeof value !== "number") {
             throw new Error("Illegal Argument Exception: value needs to be a number.");
         }
         var query = copyQuery(this.getQuery());
         query.take = OperationExpression.take(value);
         return this.copy(query);
-    }
+    };
     ;
-    orderByDesc(lambda) {
+    Queryable.prototype.orderByDesc = function (lambda) {
         var query = copyQuery(this.getQuery());
         var descendingExpression = OperationExpression.descending(lambda.call(ExpressionBuilder, new ExpressionBuilder(this.Type)).getExpression());
         query.orderBy.children.push(descendingExpression);
         return this.copy(query);
-    }
+    };
     ;
-    orderBy(lambda) {
+    Queryable.prototype.orderBy = function (lambda) {
         var query = copyQuery(this.getQuery());
         var ascendingExpression = OperationExpression.ascending(lambda.call(ExpressionBuilder, new ExpressionBuilder(this.Type)).getExpression());
         query.orderBy.children.push(ascendingExpression);
         return this.copy(query);
-    }
+    };
     ;
-    setParameters(params) {
+    Queryable.prototype.setParameters = function (params) {
         if (!params) {
             return;
         }
@@ -181,69 +181,69 @@ class Queryable {
             parameters[key] = params[key];
         });
         return this;
-    }
+    };
     ;
-    toArray(callback) {
+    Queryable.prototype.toArray = function (callback) {
         assertHasProvider(this);
         var future = this.provider.execute(this);
         if (typeof callback === "function") {
             future.then(callback);
         }
         return future;
-    }
+    };
     ;
-    count() {
+    Queryable.prototype.count = function () {
         assertHasProvider(this);
         return this.provider.count(this);
-    }
+    };
     ;
-    toArrayWithCount() {
+    Queryable.prototype.toArrayWithCount = function () {
         assertHasProvider(this);
         return this.provider.toArrayWithCount(this);
-    }
+    };
     ;
-    all(lambda) {
+    Queryable.prototype.all = function (lambda) {
         assertHasProvider(this);
         return this.provider.all(this, lambda);
-    }
+    };
     ;
-    any(lambda) {
+    Queryable.prototype.any = function (lambda) {
         assertHasProvider(this);
         return this.provider.any(this, lambda);
-    }
+    };
     ;
-    firstOrDefault(lambda) {
+    Queryable.prototype.firstOrDefault = function (lambda) {
         assertHasProvider(this);
         return this.provider.firstOrDefault(this, lambda);
-    }
+    };
     ;
-    lastOrDefault(lambda) {
+    Queryable.prototype.lastOrDefault = function (lambda) {
         console.log("Deprecated. Use orderBy and firstOrDefault");
         assertHasProvider(this);
         return this.provider.lastOrDefault(this, lambda);
-    }
+    };
     ;
-    first(lambda) {
+    Queryable.prototype.first = function (lambda) {
         assertHasProvider(this);
         return this.provider.first(this, lambda);
-    }
+    };
     ;
-    last(lambda) {
+    Queryable.prototype.last = function (lambda) {
         assertHasProvider(this);
         return this.provider.last(this, lambda);
-    }
+    };
     ;
-    select(lambda) {
+    Queryable.prototype.select = function (lambda) {
         assertHasProvider(this);
         return this.provider.select(this, lambda);
-    }
+    };
     ;
-    contains(lambda) {
+    Queryable.prototype.contains = function (lambda) {
         assertHasProvider(this);
         return this.provider.contains(this, lambda);
-    }
+    };
     ;
-    include(lambda) {
+    Queryable.prototype.include = function (lambda) {
         var query = copyQuery(this.getQuery());
         var operationExpressionBuilder = lambda.call(ExpressionBuilder, new ExpressionBuilder(this.Type));
         if (typeof operationExpressionBuilder.getExpression !== "function") {
@@ -255,47 +255,47 @@ class Queryable {
         }
         query.include.children.push(queryableExpression);
         return this.copy(query);
-    }
+    };
     ;
-    ifNone(callback) {
+    Queryable.prototype.ifNone = function (callback) {
         this.count().then(function (count) {
             if (count === 0) {
                 callback();
             }
         });
         return this;
-    }
+    };
     ;
-    ifAny(callback) {
+    Queryable.prototype.ifAny = function (callback) {
         this.toArray(function (a) {
             if (a.length > 0) {
                 callback(a);
             }
         });
         return this;
-    }
+    };
     ;
-    intersects(compareToQueryable) {
+    Queryable.prototype.intersects = function (compareToQueryable) {
         assertHasProvider(this);
         if (compareToQueryable instanceof Array) {
             compareToQueryable = compareToQueryable.asQueryable();
         }
         return this.provider.intersects(this, compareToQueryable);
-    }
+    };
     ;
-    ofType(Type) {
+    Queryable.prototype.ofType = function (Type) {
         var queryable = new Queryable(Type);
         queryable.provider = this.provider;
         return queryable;
-    }
+    };
     ;
-    createCopy(expression) {
+    Queryable.prototype.createCopy = function (expression) {
         var queryable = new Queryable(this.Type, expression);
         queryable.provider = this.provider;
         return queryable;
-    }
+    };
     ;
-    copyExpressionObject(expressionObject) {
+    Queryable.prototype.copyExpressionObject = function (expressionObject) {
         var expression = {};
         Object.keys(expressionObject).forEach(function (key) {
             var value = expressionObject[key];
@@ -312,15 +312,15 @@ class Queryable {
             }
         });
         return expression;
-    }
+    };
     ;
-    copy(query) {
+    Queryable.prototype.copy = function (query) {
         var queryable = new Queryable(this.Type, query || copyQuery(this.query));
         queryable.provider = this.provider;
         return queryable;
-    }
+    };
     ;
-    merge(queryable) {
+    Queryable.prototype.merge = function (queryable) {
         var clone = this.copy();
         var cloneQuery = clone.getQuery();
         var query = queryable.getQuery();
@@ -345,8 +345,9 @@ class Queryable {
             cloneQuery.orderBy.children.push(expression.copy());
         });
         return this.copy(cloneQuery);
-    }
+    };
     ;
-}
+    return Queryable;
+}());
 module.exports = Queryable;
 //# sourceMappingURL=Queryable.js.map

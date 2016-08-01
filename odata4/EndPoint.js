@@ -1,13 +1,13 @@
 "use strict";
-const Queryable = require("../query/Queryable");
-const ODataProvider = require("./ODataProvider");
-const ToServiceDto = require("./ToServiceDto");
-const FromServiceDto = require("./FromServiceDto");
-const convertToODataValue = require("./convertToODataValue");
-const AddedResponse = require("../data/responses/AddedResponse");
-const UpdatedResponse = require("../data/responses/UpdatedResponse");
-const RemovedResponse = require("../data/responses/RemovedResponse");
-const FunctionInvocation = require("./FunctionInvocation");
+var Queryable = require("../query/Queryable");
+var ODataProvider = require("./ODataProvider");
+var ToServiceDto = require("./ToServiceDto");
+var FromServiceDto = require("./FromServiceDto");
+var convertToODataValue = require("./convertToODataValue");
+var AddedResponse = require("../data/responses/AddedResponse");
+var UpdatedResponse = require("../data/responses/UpdatedResponse");
+var RemovedResponse = require("../data/responses/RemovedResponse");
+var FunctionInvocation = require("./FunctionInvocation");
 var getPrimaryKeys = function (model) {
     var primaryKey = Object.keys(model.properties).filter(function (key) {
         var property = model.properties[key];
@@ -18,8 +18,8 @@ var getPrimaryKeys = function (model) {
     }
     return primaryKey;
 };
-class EndPoint {
-    constructor(config) {
+var EndPoint = (function () {
+    function EndPoint(config) {
         this.config = config || {};
         this.url = this.config.url;
         this.model = this.config.model;
@@ -49,16 +49,17 @@ class EndPoint {
         this.primaryKey = getPrimaryKeys(this.model);
         this.functionInvocation = new FunctionInvocation(this.ajaxProvider);
     }
-    buildEntityUrl(entity) {
+    EndPoint.prototype.buildEntityUrl = function (entity) {
         var id = entity[this.primaryKey];
         if (typeof id === "undefined") {
             throw new Error("Entity doesn't have a primary key value.");
         }
         var entityUrl = this.url + "(" + id + ")";
         return entityUrl;
-    }
+    };
     ;
-    add(entity) {
+    EndPoint.prototype.add = function (entity) {
+        var _this = this;
         if (entity == null) {
             throw new Error("The parameter entity cannot be null or undefined.");
         }
@@ -66,12 +67,12 @@ class EndPoint {
         return this.ajaxProvider.request(this.url, {
             method: "POST",
             data: dto
-        }).chain((dto) => {
-            dto = this.fromServiceDto.resolve(this.model, dto);
+        }).chain(function (dto) {
+            dto = _this.fromServiceDto.resolve(_this.model, dto);
             return new AddedResponse("Successfully Added.", dto);
         });
-    }
-    update(entity, updates) {
+    };
+    EndPoint.prototype.update = function (entity, updates) {
         if (entity == null) {
             throw new Error("The parameter entity cannot be null or undefined.");
         }
@@ -82,38 +83,38 @@ class EndPoint {
         return this.ajaxProvider.request(this.buildEntityUrl(entity), {
             method: "PATCH",
             data: dto
-        }).chain(() => {
+        }).chain(function () {
             return new UpdatedResponse("Successfully Updated.");
         });
-    }
+    };
     ;
-    remove(entity) {
+    EndPoint.prototype.remove = function (entity) {
         return this.ajaxProvider.request(this.buildEntityUrl(entity), {
             method: "DELETE"
-        }).chain(() => {
+        }).chain(function () {
             return new RemovedResponse("Successfully Removed.");
         });
-    }
+    };
     ;
-    getQueryProvider() {
+    EndPoint.prototype.getQueryProvider = function () {
         return this.queryProvider;
-    }
-    asQueryable() {
+    };
+    EndPoint.prototype.asQueryable = function () {
         var queryable = new Queryable();
         queryable.provider = this.getQueryProvider();
         return queryable;
-    }
-    invokeInstanceFunction(entity, methodName, parameters, ajaxOptions) {
+    };
+    EndPoint.prototype.invokeInstanceFunction = function (entity, methodName, parameters, ajaxOptions) {
         var keyName = this.edm.getPrimaryKeyProperties(this.model.type)[0];
         var fullUrl = this.url + "(" + convertToODataValue(entity[keyName]) + ")";
         return this.functionInvocation.invokeAsync(fullUrl, methodName, parameters, ajaxOptions);
-    }
+    };
     ;
-    invokeClassFunction(methodName, parameters, ajaxOptions) {
+    EndPoint.prototype.invokeClassFunction = function (methodName, parameters, ajaxOptions) {
         return this.functionInvocation.invokeAsync(this.url, methodName, parameters, ajaxOptions);
-    }
+    };
     ;
-    invokeClassMethodWithQueryable(methodName, parameters, queryable) {
+    EndPoint.prototype.invokeClassMethodWithQueryable = function (methodName, parameters, queryable) {
         var functionInvocationUrl = this.functionInvocation.buildUrl(this.url, methodName, parameters);
         var config = {
             url: functionInvocationUrl,
@@ -123,14 +124,15 @@ class EndPoint {
         };
         var odataProvider = new ODataProvider(config);
         return odataProvider.execute(queryable);
-    }
-    getUrl() {
+    };
+    EndPoint.prototype.getUrl = function () {
         return this.url;
-    }
-    getAjaxProvider() {
+    };
+    EndPoint.prototype.getAjaxProvider = function () {
         return this.ajaxProvider;
-    }
+    };
     ;
-}
+    return EndPoint;
+}());
 module.exports = EndPoint;
 //# sourceMappingURL=EndPoint.js.map

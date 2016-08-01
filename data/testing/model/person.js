@@ -1,7 +1,7 @@
 "use strict";
-const Person = require("../Person");
-const HumanoidType = require("../HumanoidType");
-const EdmPackage = require("../../Edm");
+var Person = require("../Person");
+var HumanoidType = require("../HumanoidType");
+var EdmPackage = require("../../Edm");
 module.exports = {
     type: Person,
     collectionName: "people",

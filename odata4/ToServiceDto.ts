@@ -2,6 +2,7 @@
 import toServiceHandlerCollection = require("./toServiceHandlerCollection");
 import EdmPackage = require("../data/Edm");
 import util = require("./util");
+
 require("../number/toEnumString");
 require("../number/toEnumFlagString");
 require("../array/firstOrDefault");
@@ -29,13 +30,13 @@ class ToServiceDto {
     private models;
     private primitiveTypes;
     private typeToNamespaceHashmap;
+
     constructor(edm) {
         this.models = new Hashmap();
         this.primitiveTypes = edm.getPrimitiveTypes();
         this.typeToNamespaceHashmap = util.createTypeToNamespaceHashmap(edm);
         this.edm = edm;
     }
-
 
     private getModel(Type) {
         var model = this.models.get(Type);
@@ -88,7 +89,7 @@ class ToServiceDto {
 
         var handlers = this.getHandlers(entity, model);
 
-        Object.keys(handlers).forEach(function (key) {
+        Object.keys(handlers).forEach((key) => {
             dto[key] = handlers[key](entity[key]);
         });
 
@@ -107,7 +108,7 @@ class ToServiceDto {
 
         var handlers = this.getHandlers(entity, model);
 
-        Object.keys(updates).forEach(function (key) {
+        Object.keys(updates).forEach((key) => {
             if (typeof handlers[key] === "function") {
                 dto[key] = handlers[key](updates[key]);
             } else {
@@ -119,6 +120,7 @@ class ToServiceDto {
         if (namespace) {
             dto["@odata.type"] = namespace;
         }
+
 
         return dto;
     }

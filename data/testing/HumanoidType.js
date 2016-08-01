@@ -1,9 +1,12 @@
 "use strict";
-const ODataAnnotation = require("../../odata4/ODataAnnotation");
-const EdmPackage = require("../../data/Edm");
-class HumanoidType {
-}
-HumanoidType.annotations = [new ODataAnnotation("Namespace.HumanoidType")];
+var ODataAnnotation = require("../../odata4/ODataAnnotation");
+var EdmPackage = require("../../data/Edm");
+var HumanoidType = (function () {
+    function HumanoidType() {
+    }
+    HumanoidType.annotations = [new ODataAnnotation("Namespace.HumanoidType")];
+    return HumanoidType;
+}());
 HumanoidType.None = new EdmPackage.Enum(0);
 HumanoidType.None.name = "None";
 HumanoidType.Human = new EdmPackage.Enum(1);

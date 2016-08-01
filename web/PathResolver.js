@@ -1,7 +1,7 @@
 "use strict";
 var fileRegEx = /\.[^\.]*?$/i;
-class PathResolver {
-    constructor(path, options) {
+var PathResolver = (function () {
+    function PathResolver(path, options) {
         options = options || {};
         if (typeof path !== "string") {
             throw new Error();
@@ -9,7 +9,7 @@ class PathResolver {
         this._folderDelimiter = options.folderDelimiter || "/";
         this._path = path;
     }
-    _removeFileFromPath() {
+    PathResolver.prototype._removeFileFromPath = function () {
         var path = this._path;
         var pathParts = path.split(this._folderDelimiter);
         var lastDirectory = pathParts[pathParts.length - 1];
@@ -18,27 +18,27 @@ class PathResolver {
             pathParts.pop();
         }
         return pathParts.join(this._folderDelimiter);
-    }
+    };
     ;
-    _addLastSlashIfNeeded(path) {
+    PathResolver.prototype._addLastSlashIfNeeded = function (path) {
         if (path.lastIndexOf(this._folderDelimiter) !== path.length - 1) {
             path += this._folderDelimiter;
         }
         return path;
-    }
-    _removeFirstSlashIfNeeded(path) {
+    };
+    PathResolver.prototype._removeFirstSlashIfNeeded = function (path) {
         if (path.indexOf(this._folderDelimiter) === 0) {
             path = path.substring(1);
         }
         return path;
-    }
-    _resolveLocalRelativePath(toPath) {
+    };
+    PathResolver.prototype._resolveLocalRelativePath = function (toPath) {
         if (toPath.indexOf("." + this._folderDelimiter) === 0) {
             toPath = toPath.substring(2);
         }
         return toPath;
-    }
-    _resolveParentRelativePath(toPath) {
+    };
+    PathResolver.prototype._resolveParentRelativePath = function (toPath) {
         var pathParts = this._path.split(this._folderDelimiter);
         var toPathParts = toPath.split(this._folderDelimiter);
         while (toPathParts[0] === "..") {
@@ -50,26 +50,27 @@ class PathResolver {
         toPath = this._removeFirstSlashIfNeeded(toPathParts.join(this._folderDelimiter));
         this._path = root + toPath;
         return this._path;
-    }
-    resolve(toPath) {
+    };
+    PathResolver.prototype.resolve = function (toPath) {
         if (toPath.substring(0, 1) === this._folderDelimiter) {
             return this._path = toPath;
         }
         this._path = this._removeFileFromPath();
         toPath = this._resolveLocalRelativePath(toPath);
         return this._resolveParentRelativePath(toPath);
-    }
-    toString() {
+    };
+    PathResolver.prototype.toString = function () {
         return this._path;
-    }
-    getPath() {
+    };
+    PathResolver.prototype.getPath = function () {
         return this._path;
-    }
-    setPath(value) {
+    };
+    PathResolver.prototype.setPath = function (value) {
         if (typeof value === "string") {
             this._path = value;
         }
-    }
-}
+    };
+    return PathResolver;
+}());
 module.exports = PathResolver;
 //# sourceMappingURL=PathResolver.js.map

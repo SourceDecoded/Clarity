@@ -114,6 +114,7 @@ class EndPoint {
             method: "PATCH",
             data: dto
         }).chain(() => {
+
             return new UpdatedResponse("Successfully Updated.");
         });
     };

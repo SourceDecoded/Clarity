@@ -1,9 +1,9 @@
 "use strict";
-class HtmlParser {
-    constructor(document) {
+var HtmlParser = (function () {
+    function HtmlParser(document) {
         this.wrapperElement = document.createElement("div");
     }
-    parse(htmlMarkup) {
+    HtmlParser.prototype.parse = function (htmlMarkup) {
         var self = this;
         var wrapper = self.wrapperElement;
         var documentFragment = document.createDocumentFragment();
@@ -13,7 +13,8 @@ class HtmlParser {
             documentFragment.appendChild(wrapper.removeChild(wrapper.firstChild));
         }
         return documentFragment;
-    }
-}
+    };
+    return HtmlParser;
+}());
 module.exports = HtmlParser;
 //# sourceMappingURL=HtmlParser.js.map

@@ -1,38 +1,45 @@
 "use strict";
-class Expression {
-    constructor(nodeName) {
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var Expression = (function () {
+    function Expression(nodeName) {
         this.nodeName = "expression";
         this.nodeName = nodeName;
     }
-    copy() {
+    Expression.prototype.copy = function () {
         throw new Error("Meant to be overriden");
-    }
-    isEqualTo(node) {
+    };
+    Expression.prototype.isEqualTo = function (node) {
         throw new Error("Meant to be overriden");
-    }
-}
+    };
+    return Expression;
+}());
 exports.Expression = Expression;
-class ValueExpression extends Expression {
-    constructor(nodeName, value) {
-        super(nodeName);
+var ValueExpression = (function (_super) {
+    __extends(ValueExpression, _super);
+    function ValueExpression(nodeName, value) {
+        _super.call(this, nodeName);
         this.value = null;
         this.value = value;
     }
-    copy() {
+    ValueExpression.prototype.copy = function () {
         return new ValueExpression(this.nodeName, this.value);
-    }
+    };
     ;
-    isEqualTo(node) {
+    ValueExpression.prototype.isEqualTo = function (node) {
         if (node && this.nodeName === node.nodeName && this.value === node.value) {
             return true;
         }
         return false;
-    }
+    };
     ;
-    contains(node) {
+    ValueExpression.prototype.contains = function (node) {
         return this.isEqualTo(node);
-    }
-    static getExpressionType(value) {
+    };
+    ValueExpression.getExpressionType = function (value) {
         if (value instanceof Expression) {
             return value;
         }
@@ -63,97 +70,99 @@ class ValueExpression extends Expression {
         else {
             return ValueExpression.object(value);
         }
-    }
-    static property(value) {
+    };
+    ValueExpression.property = function (value) {
         return new ValueExpression("property", value);
-    }
+    };
     ;
-    static constant(value) {
+    ValueExpression.constant = function (value) {
         return new ValueExpression("constant", value);
-    }
+    };
     ;
-    static boolean(value) {
+    ValueExpression.boolean = function (value) {
         var expression = new ValueExpression("boolean");
         expression.value = value;
         return expression;
-    }
+    };
     ;
-    static string(value) {
+    ValueExpression.string = function (value) {
         var expression = new ValueExpression("string");
         expression.value = value;
         return expression;
-    }
+    };
     ;
-    static number(value) {
+    ValueExpression.number = function (value) {
         var expression = new ValueExpression("number");
         expression.value = value;
         return expression;
-    }
+    };
     ;
-    static object(value) {
+    ValueExpression.object = function (value) {
         var expression = new ValueExpression("object");
         expression.value = value;
         return expression;
-    }
+    };
     ;
-    static date(value) {
+    ValueExpression.date = function (value) {
         var expression = new ValueExpression("date");
         expression.value = value;
         return expression;
-    }
+    };
     ;
-    static function(value) {
+    ValueExpression.function = function (value) {
         var expression = new ValueExpression("function");
         expression.value = value;
         return expression;
-    }
+    };
     ;
-    static type(value) {
+    ValueExpression.type = function (value) {
         var expression = new ValueExpression("type");
         expression.value = value || Object;
         return expression;
-    }
+    };
     ;
-    static null(value) {
+    ValueExpression.null = function (value) {
         var expression = new ValueExpression("null");
         expression.value = value;
         return expression;
-    }
+    };
     ;
-    static undefined(value) {
+    ValueExpression.undefined = function (value) {
         var expression = new ValueExpression("undefined");
         expression.value = value;
         return expression;
-    }
+    };
     ;
-    static array(value) {
+    ValueExpression.array = function (value) {
         var expression = new ValueExpression("array");
         expression.value = value;
         return expression;
-    }
+    };
     ;
-    static queryable(leftExpression, rightExpression) {
+    ValueExpression.queryable = function (leftExpression, rightExpression) {
         var expression = new OperationExpression("queryable");
         expression.children.push(leftExpression, rightExpression);
         return expression;
-    }
+    };
     ;
-}
+    return ValueExpression;
+}(Expression));
 exports.ValueExpression = ValueExpression;
-class OperationExpression extends Expression {
-    constructor(nodeName) {
-        super(nodeName);
+var OperationExpression = (function (_super) {
+    __extends(OperationExpression, _super);
+    function OperationExpression(nodeName) {
+        _super.call(this, nodeName);
         this.children = [];
     }
-    copy() {
+    OperationExpression.prototype.copy = function () {
         var children = [];
         var copy = new OperationExpression(this.nodeName);
         this.children.forEach(function (expression) {
             copy.children.push(expression.copy());
         });
         return copy;
-    }
-    isEqualTo(node) {
+    };
+    OperationExpression.prototype.isEqualTo = function (node) {
         if (!Array.isArray(node.children) || this.nodeName !== node.nodeName) {
             return false;
         }
@@ -163,11 +172,12 @@ class OperationExpression extends Expression {
         return this.children.every(function (expression, index) {
             return expression.isEqualTo(node.children[index]);
         });
-    }
-    contains(node) {
+    };
+    OperationExpression.prototype.contains = function (node) {
+        var _this = this;
         if (node.nodeName === this.nodeName && Array.isArray(node.children)) {
-            var matched = node.children.every((childNode, index) => {
-                return childNode.contains(this.children[index]);
+            var matched = node.children.every(function (childNode, index) {
+                return childNode.contains(_this.children[index]);
             });
             if (matched) {
                 return true;
@@ -176,249 +186,315 @@ class OperationExpression extends Expression {
         return this.children.some(function (childNode) {
             return childNode.contains(node);
         });
-    }
-    getMatchingNodes(node, matchedNodes) {
+    };
+    OperationExpression.prototype.getMatchingNodes = function (node, matchedNodes) {
+        var _this = this;
         matchedNodes = Array.isArray(matchedNodes) ? matchedNodes : [];
         if (node.nodeName === this.nodeName && Array.isArray(node.children)) {
-            var matched = node.children.every((childNode, index) => {
-                return childNode.contains(this.children[index], matchedNodes);
+            var matched = node.children.every(function (childNode, index) {
+                return childNode.contains(_this.children[index], matchedNodes);
             });
             if (matched) {
                 matchedNodes.push(this);
             }
         }
-        this.children.forEach((childNode) => {
+        this.children.forEach(function (childNode) {
             if (Array.isArray(childNode.children)) {
                 childNode.getMatchingNodes(node, matchedNodes);
             }
         }, matchedNodes);
         return matchedNodes;
-    }
-    static equalTo(left, right) {
+    };
+    OperationExpression.equalTo = function (left, right) {
         var expression = new OperationExpression("equalTo");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static notEqualTo(left, right) {
+    OperationExpression.notEqualTo = function (left, right) {
         var expression = new OperationExpression("notEqualTo");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static or(...args) {
+    OperationExpression.or = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("or");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static and(...args) {
+    OperationExpression.and = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("and");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static where(...args) {
+    OperationExpression.where = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("where");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static greaterThan(...args) {
+    OperationExpression.greaterThan = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("greaterThan");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static lessThan(...args) {
+    OperationExpression.lessThan = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("lessThan");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static greaterThanOrEqualTo(...args) {
+    OperationExpression.greaterThanOrEqualTo = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("greaterThanOrEqualTo");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static lessThanOrEqualTo(...args) {
+    OperationExpression.lessThanOrEqualTo = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("lessThanOrEqualTo");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static orderBy(...args) {
+    OperationExpression.orderBy = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("orderBy");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static descending(...args) {
+    OperationExpression.descending = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("descending");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static ascending(...args) {
+    OperationExpression.ascending = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("ascending");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static skip(value) {
+    OperationExpression.skip = function (value) {
         var expression = new OperationExpression("skip");
         var valueExpression = ValueExpression.constant(value);
         expression.children.push(valueExpression);
         return expression;
-    }
+    };
     ;
-    static take(value) {
+    OperationExpression.take = function (value) {
         var expression = new OperationExpression("take");
         var valueExpression = ValueExpression.constant(value);
         expression.children.push(valueExpression);
         return expression;
-    }
+    };
     ;
-    static buildOperatorExpression(name) {
+    OperationExpression.buildOperatorExpression = function (name) {
         var expression = new OperationExpression(name);
         var args = Array.prototype.slice.call(arguments, 1);
         args.forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static guid(...args) {
+    OperationExpression.guid = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("guid");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static substring(...args) {
+    OperationExpression.substring = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("substring");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static substringOf(...args) {
+    OperationExpression.substringOf = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("substringOf");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static startsWith(...args) {
+    OperationExpression.startsWith = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("startsWith");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static endsWith(...args) {
+    OperationExpression.endsWith = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("endsWith");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static isIn(property, array) {
+    OperationExpression.isIn = function (property, array) {
         var expression = new OperationExpression("isIn");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static isNotIn(property, array) {
+    OperationExpression.isNotIn = function (property, array) {
         var expression = new OperationExpression("isNotIn");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static include(...args) {
+    OperationExpression.include = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         var expression = new OperationExpression("include");
         Array.prototype.slice.call(arguments, 0).forEach(function (arg) {
             expression.children.push(arg);
         });
         return expression;
-    }
+    };
     ;
-    static any(propertyAccessExpression, expression) {
+    OperationExpression.any = function (propertyAccessExpression, expression) {
         var anyExpression = new OperationExpression("any");
         var expressionExpression = OperationExpression.expression(expression);
         anyExpression.children.push(propertyAccessExpression, expressionExpression);
         return anyExpression;
-    }
+    };
     ;
-    static all(propertyAccessExpression, expression) {
+    OperationExpression.all = function (propertyAccessExpression, expression) {
         var allExpression = new OperationExpression("all");
         var expressionExpression = OperationExpression.expression(expression);
         allExpression.children.push(propertyAccessExpression, expressionExpression);
         return allExpression;
-    }
+    };
     ;
-    static expression(value) {
+    OperationExpression.expression = function (value) {
         var expresssionExpression = new ValueExpression("expression", value);
         return expresssionExpression;
-    }
+    };
     ;
-    static propertyAccess(leftExpression, propertyName) {
+    OperationExpression.propertyAccess = function (leftExpression, propertyName) {
         var propertyExpression = ValueExpression.property(propertyName);
         var propertyAccessExpression = new OperationExpression("propertyAccess");
         propertyAccessExpression.children.push(leftExpression, propertyExpression);
         return propertyAccessExpression;
-    }
+    };
     ;
-    static contains(Type, namespace, expression) {
+    OperationExpression.contains = function (Type, namespace, expression) {
         var containsExpression = new OperationExpression("contains");
         var ofTypeExpression = new ValueExpression("ofType", Type);
         var propertyExpression = new ValueExpression("property", namespace);
         containsExpression.children.push(ofTypeExpression, propertyExpression, expression);
         return containsExpression;
-    }
+    };
     ;
-    static intersects(Type, namespace, expression) {
+    OperationExpression.intersects = function (Type, namespace, expression) {
         var intersectsExpression = new OperationExpression("intersects");
         var ofTypeExpression = new ValueExpression("ofType", Type);
         var propertyExpression = new ValueExpression("property", namespace);
         intersectsExpression.children.push(ofTypeExpression, propertyExpression, expression);
         return intersectsExpression;
-    }
+    };
     ;
-}
+    return OperationExpression;
+}(Expression));
 exports.OperationExpression = OperationExpression;
 //# sourceMappingURL=Expression.js.map

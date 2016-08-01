@@ -1,6 +1,6 @@
 "use strict";
-const ArrayProvider = require("../query/ArrayProvider");
-const Queryable = require("../query/Queryable");
+var ArrayProvider = require("../query/ArrayProvider");
+var Queryable = require("../query/Queryable");
 var _asQueryable = function (Type) {
     var self = this;
     Type = Type || self.Type;

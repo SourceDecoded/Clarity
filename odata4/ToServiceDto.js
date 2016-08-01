@@ -1,8 +1,8 @@
 "use strict";
-const Hashmap = require("../collections/Hashmap");
-const toServiceHandlerCollection = require("./toServiceHandlerCollection");
-const EdmPackage = require("../data/Edm");
-const util = require("./util");
+var Hashmap = require("../collections/Hashmap");
+var toServiceHandlerCollection = require("./toServiceHandlerCollection");
+var EdmPackage = require("../data/Edm");
+var util = require("./util");
 require("../number/toEnumString");
 require("../number/toEnumFlagString");
 require("../array/firstOrDefault");
@@ -21,55 +21,56 @@ var enumFlagHandler = function (property, value) {
     }
     return "None";
 };
-class ToServiceDto {
-    constructor(edm) {
+var ToServiceDto = (function () {
+    function ToServiceDto(edm) {
         this.models = new Hashmap();
         this.primitiveTypes = edm.getPrimitiveTypes();
         this.typeToNamespaceHashmap = util.createTypeToNamespaceHashmap(edm);
         this.edm = edm;
     }
-    getModel(Type) {
+    ToServiceDto.prototype.getModel = function (Type) {
         var model = this.models.get(Type);
         if (model === null) {
             model = this.edm.getModelByType(Type);
             this.models.add(Type, model);
         }
         return model;
-    }
+    };
     ;
-    getHandler(EntityType, propertyName) {
+    ToServiceDto.prototype.getHandler = function (EntityType, propertyName) {
         var model = this.getModel(EntityType);
         var properties = model.properties;
-        var results = Object.keys(properties).filter((key) => {
+        var results = Object.keys(properties).filter(function (key) {
             return key === propertyName;
-        }).map((key) => {
+        }).map(function (key) {
             var property = properties[key];
             if (property.type === EdmPackage.Enum) {
-                return (value) => {
+                return function (value) {
                     return enumHandler(property, value);
                 };
             }
             else if (property.type === EdmPackage.EnumFlag) {
-                return (value) => {
+                return function (value) {
                     return enumFlagHandler(property, value);
                 };
             }
             return toServiceHandlerCollection.get(property.type) || defaultHandler;
         });
         return results.firstOrDefault();
-    }
+    };
     ;
-    getHandlers(entity, model) {
-        return Object.keys(model.properties).filter((key) => {
+    ToServiceDto.prototype.getHandlers = function (entity, model) {
+        var _this = this;
+        return Object.keys(model.properties).filter(function (key) {
             var property = model.properties[key];
-            return !property.autoIncrement && this.primitiveTypes.hasKey(property.type);
-        }).reduce((handlers, key) => {
-            handlers[key] = this.getHandler(entity.constructor, key);
+            return !property.autoIncrement && _this.primitiveTypes.hasKey(property.type);
+        }).reduce(function (handlers, key) {
+            handlers[key] = _this.getHandler(entity.constructor, key);
             return handlers;
         }, {});
-    }
+    };
     ;
-    resolve(entity) {
+    ToServiceDto.prototype.resolve = function (entity) {
         var Type = entity.constructor;
         var model = this.getModel(Type);
         var dto = {};
@@ -82,9 +83,9 @@ class ToServiceDto {
             dto["@odata.type"] = namespace;
         }
         return dto;
-    }
+    };
     ;
-    resolveUpdate(entity, updates) {
+    ToServiceDto.prototype.resolveUpdate = function (entity, updates) {
         var Type = entity.constructor;
         var model = this.getModel(Type);
         var dto = {};
@@ -102,8 +103,9 @@ class ToServiceDto {
             dto["@odata.type"] = namespace;
         }
         return dto;
-    }
-}
+    };
+    return ToServiceDto;
+}());
 ;
 module.exports = ToServiceDto;
 //# sourceMappingURL=ToServiceDto.js.map

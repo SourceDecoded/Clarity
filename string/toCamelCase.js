@@ -21,7 +21,7 @@ String.prototype.toCamelCase = function (delimiter) {
     }
     return toCamelCase(this);
 };
-module.exports = (string, delimiter) => {
+module.exports = function (string, delimiter) {
     return String.prototype.toCamelCase.apply(string, delimiter);
 };
 //# sourceMappingURL=toCamelCase.js.map

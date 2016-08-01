@@ -1,5 +1,5 @@
 "use strict";
-const Future = require("./Future");
+var Future = require("./Future");
 module.exports = function (delayInMilliseconds) {
     if (typeof delayInMilliseconds !== "number") {
         throw new Error("Expected a number.");

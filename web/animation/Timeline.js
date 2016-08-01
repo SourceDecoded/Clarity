@@ -1,21 +1,27 @@
 "use strict";
-const Animation = require("./Animation");
-const animationStateManager = require("./animationStateManager");
-const Hashmap = require("../../collections/Hashmap");
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var Animation = require("./Animation");
+var animationStateManager = require("./animationStateManager");
+var Hashmap = require("../../collections/Hashmap");
 var renderByOffset = function (animationItem) {
     return animationItem.offset;
 };
 var renderByOffsetAndDuration = function (animationItem) {
     return animationItem.offset + animationItem.animation._duration;
 };
-class Timeline extends Animation {
-    constructor(config) {
-        super(config);
+var Timeline = (function (_super) {
+    __extends(Timeline, _super);
+    function Timeline(config) {
+        _super.call(this, config);
         this._animationItems = new Hashmap();
         this._iterationCount = 1;
         this._lastCurrentTime = 0;
     }
-    calculateDuration() {
+    Timeline.prototype.calculateDuration = function () {
         return this._animationItems.getValues().reduce(function (duration, animationItem) {
             var animationTotalDuration = animationItem.offset + animationItem.animation._duration;
             if (animationTotalDuration > duration) {
@@ -23,8 +29,8 @@ class Timeline extends Animation {
             }
             return duration;
         }, 0);
-    }
-    add() {
+    };
+    Timeline.prototype.add = function () {
         var animationItems = Array.prototype.slice.call(arguments, 0);
         var self = this;
         animationItems.forEach(function (animationItem) {
@@ -37,11 +43,11 @@ class Timeline extends Animation {
             self._animationItems.add(animationItem, animationItem);
         });
         this._duration = this.calculateDuration();
-    }
-    remove(animationItem) {
+    };
+    Timeline.prototype.remove = function (animationItem) {
         this._animationItems.remove(animationItem);
-    }
-    render() {
+    };
+    Timeline.prototype.render = function () {
         var progress = this._progress;
         var timelineDuration = this._duration;
         var currentTime = progress * timelineDuration;
@@ -94,7 +100,8 @@ class Timeline extends Animation {
             }
         });
         return this;
-    }
-}
+    };
+    return Timeline;
+}(Animation));
 module.exports = Timeline;
 //# sourceMappingURL=Timeline.js.map

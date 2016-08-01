@@ -10,11 +10,13 @@ class FunctionInvocation {
     }
 
     invokeAsync(url, methodName, parameters?, options?) {
+
         var fullUrl = this.buildUrl(url, methodName, parameters, options);
         return this.ajaxProvider.request(fullUrl, options);
     };
 
     buildUrl(url, methodName, parameters?, options?) {
+
         url = url.lastIndexOf("/") === url.length - 1 ? url.substr(0, url.length - 1) : url;
         parameters = parameters || {};
         options = options || {};

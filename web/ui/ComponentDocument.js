@@ -218,8 +218,10 @@ function css(styles) {
         });
     });
 }
-class ComponentDocument {
-    constructor(document, services, htmlParser, HTMLElement = window.HTMLElement, Node = window.Node) {
+var ComponentDocument = (function () {
+    function ComponentDocument(document, services, htmlParser, HTMLElement, Node) {
+        if (HTMLElement === void 0) { HTMLElement = window.HTMLElement; }
+        if (Node === void 0) { Node = window.Node; }
         var self = this;
         setUp(HTMLElement, Node);
         this._styles = "";
@@ -265,15 +267,15 @@ class ComponentDocument {
         };
         document.createComponent = document.createElement;
     }
-    _getTags(element) {
+    ComponentDocument.prototype._getTags = function (element) {
         var self = this;
         var tags = convertNodeListToArray(element.querySelectorAll("[tag]"));
         return tags.reduce(function (tags, taggedElement) {
             tags[taggedElement.getAttribute("tag")] = taggedElement;
             return tags;
         }, {});
-    }
-    _applyElementFunctions(element) {
+    };
+    ComponentDocument.prototype._applyElementFunctions = function (element) {
         Object.defineProperties(element, {
             previousSiblingComponent: {
                 configurable: true,
@@ -307,9 +309,9 @@ class ComponentDocument {
             }
         });
         element.dispose = dispose;
-    }
+    };
     ;
-    _attributeNameToJavascriptName(attributeName) {
+    ComponentDocument.prototype._attributeNameToJavascriptName = function (attributeName) {
         var parts = attributeName.split("-");
         return parts.reduce(function (name, part, index) {
             if (index > 0) {
@@ -320,9 +322,9 @@ class ComponentDocument {
             }
             return name;
         }, "");
-    }
+    };
     ;
-    _applyAttributesToComponent(element) {
+    ComponentDocument.prototype._applyAttributesToComponent = function (element) {
         var attributes = element.attributes;
         for (var x = 0; x < element.attributes.length; x++) {
             var domAttribute = element.attributes.item(x);
@@ -332,9 +334,9 @@ class ComponentDocument {
                 element[name] = domAttribute.value;
             }
         }
-    }
+    };
     ;
-    _applyComponentFunctions(element) {
+    ComponentDocument.prototype._applyComponentFunctions = function (element) {
         var self = this;
         var selectorContainers = convertNodeListToArray(element.querySelectorAll("[select]"));
         element._selectorContainers = selectorContainers;
@@ -375,15 +377,15 @@ class ComponentDocument {
             element.insertBeforeComponent = emptyFn;
             element.replaceChildComponent = emptyFn;
         }
-    }
+    };
     ;
-    _applyFunctionsToElement(element) {
+    ComponentDocument.prototype._applyFunctionsToElement = function (element) {
         var self = this;
         element.dispose = dispose;
         element.css = css;
-    }
+    };
     ;
-    _initializeController(Controller, element, tags) {
+    ComponentDocument.prototype._initializeController = function (Controller, element, tags) {
         var self = this;
         var controllerNamespace = element.getAttribute("controller");
         if (typeof Controller === "function") {
@@ -392,18 +394,18 @@ class ComponentDocument {
         else {
             element.controller = null;
         }
-    }
+    };
     ;
-    _removeStyles(htmlElement) {
+    ComponentDocument.prototype._removeStyles = function (htmlElement) {
         var self = this;
         var styles = convertNodeListToArray(htmlElement.querySelectorAll("style"));
         return styles.map(function (style) {
             style.parentElement.removeChild(style);
             return style.innerHTML;
         }).join("\n\n");
-    }
+    };
     ;
-    _registerComponent(htmlElement, Controller) {
+    ComponentDocument.prototype._registerComponent = function (htmlElement, Controller) {
         if (htmlElement.nodeType === htmlElement.ELEMENT_NODE) {
             var self = this;
             var styles = self._removeStyles(htmlElement);
@@ -413,9 +415,9 @@ class ComponentDocument {
                 Controller: Controller
             };
         }
-    }
+    };
     ;
-    _buildComponent(element) {
+    ComponentDocument.prototype._buildComponent = function (element) {
         var self = this;
         if (element.nodeType === element.ELEMENT_NODE) {
             return walkTheElement(element, function (element, children) {
@@ -444,8 +446,9 @@ class ComponentDocument {
         else if (element.nodeType === element.TEXT_NODE) {
             return document.createTextNode(element.textContent);
         }
-    }
+    };
     ;
-}
+    return ComponentDocument;
+}());
 module.exports = ComponentDocument;
 //# sourceMappingURL=ComponentDocument.js.map

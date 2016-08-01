@@ -1,7 +1,7 @@
 "use strict";
-const PhoneNumber = require("../PhoneNumber");
-const PhoneNumberType = require("../PhoneNumberType");
-const EdmPackage = require("../../Edm");
+var PhoneNumber = require("../PhoneNumber");
+var PhoneNumberType = require("../PhoneNumberType");
+var EdmPackage = require("../../Edm");
 module.exports = {
     type: PhoneNumber,
     collectionName: "phoneNumbers",

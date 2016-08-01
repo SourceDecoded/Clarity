@@ -1,29 +1,31 @@
 "use strict";
-const Observer = require("./Observer");
-class Observable {
-    constructor() {
+var Observer = require("./Observer");
+var Observable = (function () {
+    function Observable() {
         this.observers = [];
     }
-    getObservers() {
+    Observable.prototype.getObservers = function () {
         return this.observers;
-    }
+    };
     ;
-    observe() {
-        var observer = new Observer(() => {
-            var index = this.observers.indexOf(observer);
+    Observable.prototype.observe = function () {
+        var _this = this;
+        var observer = new Observer(function () {
+            var index = _this.observers.indexOf(observer);
             if (index >= 0) {
-                this.observers.splice(index, 1);
+                _this.observers.splice(index, 1);
             }
         });
         this.observers.push(observer);
         return observer;
-    }
+    };
     ;
-    observeType(type, callback) {
-        var observer = new Observer(() => {
-            var index = this.observers.indexOf(observer);
+    Observable.prototype.observeType = function (type, callback) {
+        var _this = this;
+        var observer = new Observer(function () {
+            var index = _this.observers.indexOf(observer);
             if (index >= 0) {
-                this.observers.splice(index, 1);
+                _this.observers.splice(index, 1);
             }
         });
         var modifiedObserver = observer.filter(function (event) {
@@ -34,15 +36,16 @@ class Observable {
         }).onEach(callback);
         this.observers.push(observer);
         return modifiedObserver;
-    }
+    };
     ;
-    notify(e) {
+    Observable.prototype.notify = function (e) {
         this.observers.slice(0).forEach(function (observer) {
             observer.notify(e);
         });
-    }
+    };
     ;
-}
+    return Observable;
+}());
 ;
 module.exports = Observable;
 //# sourceMappingURL=Observable.js.map

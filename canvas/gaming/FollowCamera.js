@@ -1,6 +1,6 @@
 "use strict";
-class FollowCamera {
-    constructor(canvas, rootView, followView) {
+var FollowCamera = (function () {
+    function FollowCamera(canvas, rootView, followView) {
         if (!canvas || !rootView || !followView) {
             throw new Error("All arguments are expected.");
         }
@@ -18,15 +18,15 @@ class FollowCamera {
         this.offScreenCanvas.height = canvas.height;
         this.offscreenContext = this.offScreenCanvas.getContext("2d");
     }
-    centerFollowedView() {
+    FollowCamera.prototype.centerFollowedView = function () {
         var centerLeft = (this.width / 2) - (this.followView.width / 2);
         var centerTop = (this.height / 2) - (this.followView.height / 2);
         var x = this.followView.x;
         var y = this.followView.y;
         this.x = Math.floor(x - centerLeft);
         this.y = Math.floor(y - centerTop);
-    }
-    withinBounds() {
+    };
+    FollowCamera.prototype.withinBounds = function () {
         var x = this.x;
         var y = this.y;
         var right = Math.min(x + this.width, this.rootView.width);
@@ -35,8 +35,8 @@ class FollowCamera {
         y = bottom - this.height;
         this.x = Math.floor(x > 0 ? x : 0);
         this.y = Math.floor(y > 0 ? y : 0);
-    }
-    update(delta) {
+    };
+    FollowCamera.prototype.update = function (delta) {
         var context = this.context;
         this.centerFollowedView();
         this.withinBounds();
@@ -44,7 +44,8 @@ class FollowCamera {
         this.rootView.draw(this.offscreenContext, this);
         this.rootView.update(delta);
         context.drawImage(this.offScreenCanvas, 0, 0);
-    }
-}
+    };
+    return FollowCamera;
+}());
 module.exports = FollowCamera;
 //# sourceMappingURL=FollowCamera.js.map

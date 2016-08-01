@@ -1,6 +1,6 @@
 "use strict";
-const ODataAnnotation = require("./ODataAnnotation");
-const Hashmap = require("../collections/Hashmap");
+var ODataAnnotation = require("./ODataAnnotation");
+var Hashmap = require("../collections/Hashmap");
 module.exports = {
     createNamespaceToTypeHashmap: function (edm) {
         var models = edm.getModels();

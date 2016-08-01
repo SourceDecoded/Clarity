@@ -1,31 +1,38 @@
 "use strict";
-const Animation = require("./Animation");
-const Rect = require("../Rect");
-const Matter = require("matter-js");
-class SpriteAnimation extends Animation {
-    constructor(imageCache, rigidBody, sprites = []) {
-        super();
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var Animation = require("./Animation");
+var Rect = require("../Rect");
+var Matter = require("matter-js");
+var SpriteAnimation = (function (_super) {
+    __extends(SpriteAnimation, _super);
+    function SpriteAnimation(imageCache, rigidBody, sprites) {
+        if (sprites === void 0) { sprites = []; }
+        _super.call(this);
         this.sprites = sprites;
         this.currentIndex = 0;
         this.sourceToCanvas = {};
         this.imageCache = imageCache;
         this.rigidBody = rigidBody;
         this.eventDelegate = {
-            onEnd: () => {
+            onEnd: function () {
             },
-            onStart: () => {
+            onStart: function () {
             }
         };
         this.repeat = Infinity;
         this.play();
     }
-    onTick(progress) {
+    SpriteAnimation.prototype.onTick = function (progress) {
         this.currentIndex = Math.floor(this.sprites.length * progress);
         this.currentIndex = this.currentIndex >= 0 ? this.currentIndex : 0;
         this.currentIndex = this.currentIndex < this.sprites.length ? this.currentIndex : this.sprites.length - 1;
-    }
-    update(delta) {
-        super.update(delta);
+    };
+    SpriteAnimation.prototype.update = function (delta) {
+        _super.prototype.update.call(this, delta);
         this.updateAngle();
         this.updateVertices();
         this.updateVelocity();
@@ -35,17 +42,17 @@ class SpriteAnimation extends Animation {
         if (this.currentIndex === this.sprites.length - 1) {
             this.onEnd();
         }
-    }
-    updateVertices() {
+    };
+    SpriteAnimation.prototype.updateVertices = function () {
         //var sprite = this.sprites[this.currentIndex];
         //var vertices = sprite.vertices;
         //TODO: Update vertices if they are differnt than the current sprite.
-    }
-    updateAngle() {
+    };
+    SpriteAnimation.prototype.updateAngle = function () {
         Matter.Body.setAngle(this.rigidBody.body, 0);
         Matter.Body.setAngularVelocity(this.rigidBody.body, 0);
-    }
-    updateVelocity() {
+    };
+    SpriteAnimation.prototype.updateVelocity = function () {
         var sprite = this.sprites[this.currentIndex];
         var velocity = sprite.velocity;
         var body = this.rigidBody.body;
@@ -60,8 +67,8 @@ class SpriteAnimation extends Animation {
             appliedVelocity.y = velocity.y;
         }
         Matter.Body.setVelocity(body, appliedVelocity);
-    }
-    draw(context, viewRect) {
+    };
+    SpriteAnimation.prototype.draw = function (context, viewRect) {
         var sprite = this.sprites[this.currentIndex];
         var canvas = this.imageCache.getCanvas(sprite.source);
         var intersection = Rect.getIntersection(this.rigidBody.view, viewRect);
@@ -80,17 +87,18 @@ class SpriteAnimation extends Animation {
             context.rotate(-body.angle);
             context.translate(-x, -y);
         }
-    }
-    onEnd() {
+    };
+    SpriteAnimation.prototype.onEnd = function () {
         if (typeof this.eventDelegate.onEnd === "function") {
             this.eventDelegate.onEnd();
         }
-    }
-    onStart() {
+    };
+    SpriteAnimation.prototype.onStart = function () {
         if (typeof this.eventDelegate.onStart === "function") {
             this.eventDelegate.onStart;
         }
-    }
-}
+    };
+    return SpriteAnimation;
+}(Animation));
 module.exports = SpriteAnimation;
 //# sourceMappingURL=SpriteAnimation.js.map

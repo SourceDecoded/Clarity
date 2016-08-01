@@ -1,9 +1,10 @@
 "use strict";
-class Kernel {
-    constructor() {
+var Kernel = (function () {
+    function Kernel() {
     }
-    registerDependency() {
-    }
-}
+    Kernel.prototype.registerDependency = function () {
+    };
+    return Kernel;
+}());
 exports.Kernel = Kernel;
 //# sourceMappingURL=Kernel.js.map

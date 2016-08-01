@@ -1,6 +1,6 @@
 "use strict";
-const Person = require("../Person");
-const HrAccount = require("../HrAccount");
+var Person = require("../Person");
+var HrAccount = require("../HrAccount");
 module.exports = {
     type: Person,
     hasKey: "id",

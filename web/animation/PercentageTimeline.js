@@ -1,12 +1,18 @@
 "use strict";
-const Timeline = require("./Timeline");
-const Animation = require("./Animation");
-class PercentageTimeline extends Timeline {
-    constructor(duration) {
-        super();
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var Timeline = require("./Timeline");
+var Animation = require("./Animation");
+var PercentageTimeline = (function (_super) {
+    __extends(PercentageTimeline, _super);
+    function PercentageTimeline(duration) {
+        _super.call(this);
         this._duration = duration;
     }
-    _calculateAnimations() {
+    PercentageTimeline.prototype._calculateAnimations = function () {
         var self = this;
         self._animationItems.getValues().forEach(function (animationItem) {
             var offset = animationItem.startAt * self._duration;
@@ -14,8 +20,8 @@ class PercentageTimeline extends Timeline {
             animationItem.offset = offset;
             animationItem.animation._duration = duration;
         });
-    }
-    add() {
+    };
+    PercentageTimeline.prototype.add = function () {
         var self = this;
         var animationItems = Array.prototype.slice.call(arguments, 0);
         animationItems.forEach(function (animationItem) {
@@ -40,7 +46,8 @@ class PercentageTimeline extends Timeline {
                 animationItem.animation._calculateAnimations();
             }
         });
-    }
+    };
     ;
-}
+    return PercentageTimeline;
+}(Timeline));
 //# sourceMappingURL=PercentageTimeline.js.map

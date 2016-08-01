@@ -1,6 +1,6 @@
 "use strict";
-const Hashmap = require("../collections/Hashmap");
-const EdmPackage = require("../data/Edm");
+var Hashmap = require("../collections/Hashmap");
+var EdmPackage = require("../data/Edm");
 var handlers = new Hashmap();
 var dateHandler = function (dateString) {
     if (typeof dateString === "string") {

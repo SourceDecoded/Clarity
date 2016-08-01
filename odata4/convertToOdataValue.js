@@ -1,5 +1,5 @@
 "use strict";
-const EdmPackage = require("../data/Edm");
+var EdmPackage = require("../data/Edm");
 module.exports = function (value) {
     if (typeof value === "string") {
         var escapedString = value.replace(/'/g, "''").replace(/\&/g, "%26").replace(/\#/g, "%23");

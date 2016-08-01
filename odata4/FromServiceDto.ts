@@ -138,6 +138,7 @@ class FromServiceDto {
         handlers.get(Type).getKeys().forEach((key) => {
             var handler = handlers.get(Type, key);
 
+
             if (typeof handler === "function" && dto[key] != null) {
                 entity[key] = handler(dto[key]);
             }

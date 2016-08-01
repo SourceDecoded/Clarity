@@ -1,6 +1,6 @@
 "use strict";
-const Address = require("../Address");
-const EdmPackage = require("../../Edm");
+var Address = require("../Address");
+var EdmPackage = require("../../Edm");
 module.exports = {
     type: Address,
     collectionName: "addresses",

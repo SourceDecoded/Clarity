@@ -1,6 +1,6 @@
 "use strict";
-const HrAccount = require("../HrAccount");
-const Role = require("../Role");
+var HrAccount = require("../HrAccount");
+var Role = require("../Role");
 module.exports = {
     type: HrAccount,
     hasKey: "id",

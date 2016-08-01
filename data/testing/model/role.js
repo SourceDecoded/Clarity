@@ -1,6 +1,6 @@
 "use strict";
-const Role = require("../Role");
-const EdmPackage = require("../../Edm");
+var Role = require("../Role");
+var EdmPackage = require("../../Edm");
 module.exports = {
     type: Role,
     collectionName: "roles",

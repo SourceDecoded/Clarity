@@ -1,6 +1,6 @@
 "use strict";
-const Person = require("../Person");
-const PhoneNumber = require("../PhoneNumber");
+var Person = require("../Person");
+var PhoneNumber = require("../PhoneNumber");
 module.exports = {
     type: Person,
     hasKey: "id",

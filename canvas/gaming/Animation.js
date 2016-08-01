@@ -1,6 +1,6 @@
 "use strict";
-class Animation {
-    constructor() {
+var Animation = (function () {
+    function Animation() {
         this.elapsedTime = 0;
         this.progress = 0;
         this.iteration = 0;
@@ -13,7 +13,7 @@ class Animation {
         this.timeScale = 1;
         this.duration = 0;
     }
-    update(delta) {
+    Animation.prototype.update = function (delta) {
         if (this.state === "running") {
             this.elapsedTime += (delta * this.timeScale);
             if (this.elapsedTime > this.duration) {
@@ -57,24 +57,25 @@ class Animation {
             }
             this.onTick(this.progress);
         }
-    }
-    reverse() {
+    };
+    Animation.prototype.reverse = function () {
         this.direction = "reverse";
         this.state = "running";
-    }
-    play() {
+    };
+    Animation.prototype.play = function () {
         this.direction = "forward";
         this.state = "running";
-    }
-    stop() {
+    };
+    Animation.prototype.stop = function () {
         this.state = "stopped";
-    }
-    seek(decimalFraction) {
+    };
+    Animation.prototype.seek = function (decimalFraction) {
         this.elapsedTime = this.duration * decimalFraction;
         this.progress = decimalFraction;
-    }
-    onTick(progress) {
-    }
-}
+    };
+    Animation.prototype.onTick = function (progress) {
+    };
+    return Animation;
+}());
 module.exports = Animation;
 //# sourceMappingURL=Animation.js.map

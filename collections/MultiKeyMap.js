@@ -1,16 +1,16 @@
 "use strict";
-const Hashmap = require("./Hashmap");
-class MultiKeyMap {
-    constructor() {
+var Hashmap = require("./Hashmap");
+var MultiKeyMap = (function () {
+    function MultiKeyMap() {
         this.nestedHash = new Hashmap();
     }
-    setup(key1, key2) {
+    MultiKeyMap.prototype.setup = function (key1, key2) {
         if (!this.nestedHash.hasKey(key1)) {
             this.nestedHash.add(key1, new Hashmap());
         }
-    }
+    };
     ;
-    add(key1, key2, value) {
+    MultiKeyMap.prototype.add = function (key1, key2, value) {
         if (arguments.length === 3) {
             this.setup(key1, key2);
             var key2Hash = this.nestedHash.get(key1);
@@ -24,9 +24,9 @@ class MultiKeyMap {
                 throw new Error("Invalid parameters.");
             }
         }
-    }
+    };
     ;
-    get(key1, key2) {
+    MultiKeyMap.prototype.get = function (key1, key2) {
         if (this.nestedHash.hasKey(key1)) {
             if (key2 !== null && typeof key2 !== "undefined") {
                 var key2Hash = this.nestedHash.get(key1);
@@ -40,9 +40,9 @@ class MultiKeyMap {
         else {
             return null;
         }
-    }
+    };
     ;
-    remove(key1, key2) {
+    MultiKeyMap.prototype.remove = function (key1, key2) {
         if (this.nestedHash.hasKey(key1)) {
             if (key2 !== null && typeof key2 !== "undefined") {
                 var key2Hash = this.nestedHash.get(key1);
@@ -59,9 +59,9 @@ class MultiKeyMap {
         else {
             return null;
         }
-    }
+    };
     ;
-    copy() {
+    MultiKeyMap.prototype.copy = function () {
         var copy = new MultiKeyMap();
         this.nestedHash.getKeys().forEach(function (key) {
             this.nestedHash.get(key).getKeys().forEach(function (nestedKey) {
@@ -69,22 +69,23 @@ class MultiKeyMap {
             });
         });
         return copy;
-    }
+    };
     ;
-    clear() {
+    MultiKeyMap.prototype.clear = function () {
         this.getKeys().forEach(function (key) {
             this.remove(key);
         });
-    }
+    };
     ;
-    getKeys() {
+    MultiKeyMap.prototype.getKeys = function () {
         return this.nestedHash.getKeys();
-    }
+    };
     ;
-    hasKey(key1, key2) {
+    MultiKeyMap.prototype.hasKey = function (key1, key2) {
         return this.get(key1, key2) ? true : false;
-    }
+    };
     ;
-}
+    return MultiKeyMap;
+}());
 module.exports = MultiKeyMap;
 //# sourceMappingURL=MultiKeyMap.js.map

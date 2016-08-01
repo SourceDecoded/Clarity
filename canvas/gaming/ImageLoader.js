@@ -1,7 +1,9 @@
 "use strict";
-const Future = require("../../async/Future");
-class ImageLoader {
-    load(source) {
+var Future = require("../../async/Future");
+var ImageLoader = (function () {
+    function ImageLoader() {
+    }
+    ImageLoader.prototype.load = function (source) {
         return new Future(function (setValue, setError) {
             var image = new Image();
             image.onload = function () {
@@ -12,8 +14,9 @@ class ImageLoader {
             };
             image.src = source;
         });
-    }
-}
+    };
+    return ImageLoader;
+}());
 ;
 module.exports = ImageLoader;
 //# sourceMappingURL=ImageLoader.js.map

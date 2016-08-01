@@ -1,20 +1,20 @@
 "use strict";
-const ExpressionPackage = require("./Expression");
+var ExpressionPackage = require("./Expression");
 var Expression = ExpressionPackage.Expression;
 var OperationExpression = ExpressionPackage.OperationExpression;
 var ValueExpression = ExpressionPackage.ValueExpression;
-class OperationExpressionBuilder {
-    constructor(getLeftExpression) {
+var OperationExpressionBuilder = (function () {
+    function OperationExpressionBuilder(getLeftExpression) {
         this.getLeftExpression = getLeftExpression || function (expression) {
             return expression;
         };
     }
-    any(fn) {
+    OperationExpressionBuilder.prototype.any = function (fn) {
         var expressionBuilder = new ExpressionBuilder();
         var expression = fn(expressionBuilder);
         return OperationExpression.any(this.getLeftExpression(), expression);
-    }
-    where(fn) {
+    };
+    OperationExpressionBuilder.prototype.where = function (fn) {
         var propertyAccessExpression = this.getLeftExpression();
         this.getLeftExpression = function () {
             var expressionBuilder = new ExpressionBuilder(Object);
@@ -22,95 +22,107 @@ class OperationExpressionBuilder {
             return ValueExpression.queryable(propertyAccessExpression, OperationExpression.expression(OperationExpression.where(expression)));
         };
         return self;
-    }
-    all(fn) {
+    };
+    OperationExpressionBuilder.prototype.all = function (fn) {
         var expressionBuilder = new ExpressionBuilder();
         var expression = fn(expressionBuilder);
         return OperationExpression.all(this.getLeftExpression(), expression);
-    }
-    isEqualTo(value) {
+    };
+    OperationExpressionBuilder.prototype.isEqualTo = function (value) {
         var constant = ValueExpression.getExpressionType(value);
         return OperationExpression.equalTo(this.getLeftExpression(), constant);
-    }
-    isNotEqualTo(value) {
+    };
+    OperationExpressionBuilder.prototype.isNotEqualTo = function (value) {
         var constant = ValueExpression.getExpressionType(value);
         return OperationExpression.notEqualTo(this.getLeftExpression(), constant);
-    }
-    contains(value) {
+    };
+    OperationExpressionBuilder.prototype.contains = function (value) {
         var constant = ValueExpression.getExpressionType(value);
         return OperationExpression.substringOf(this.getLeftExpression(), constant);
-    }
-    isIn(array) {
+    };
+    OperationExpressionBuilder.prototype.isIn = function (array) {
         if (Array.isArray(array)) {
             return OperationExpression.isIn(this.getLeftExpression(), ValueExpression.array(array));
         }
         else {
             throw new Error("isIn is expecting to be passed an array!");
         }
-    }
-    isNotIn(array) {
+    };
+    OperationExpressionBuilder.prototype.isNotIn = function (array) {
         if (Array.isArray(array)) {
             return OperationExpression.isNotIn(this.getLeftExpression(), ValueExpression.array(array));
         }
         else {
             throw new Error("isNotIn is expecting to be passed an array!");
         }
-    }
-    isSubstringOf(value) {
+    };
+    OperationExpressionBuilder.prototype.isSubstringOf = function (value) {
         console.warn("isSubstringOf is deprecated, please us contains.");
         return OperationExpression.substringOf(this.getLeftExpression(), ValueExpression.string(value));
-    }
-    isGreaterThan(value) {
+    };
+    OperationExpressionBuilder.prototype.isGreaterThan = function (value) {
         var constant = ValueExpression.getExpressionType(value);
         return OperationExpression.greaterThan(this.getLeftExpression(), constant);
-    }
-    isGreaterThanOrEqualTo(value) {
+    };
+    OperationExpressionBuilder.prototype.isGreaterThanOrEqualTo = function (value) {
         var constant = ValueExpression.getExpressionType(value);
         return OperationExpression.greaterThanOrEqualTo(this.getLeftExpression(), constant);
-    }
-    isLessThanOrEqualTo(value) {
+    };
+    OperationExpressionBuilder.prototype.isLessThanOrEqualTo = function (value) {
         var constant = ValueExpression.getExpressionType(value);
         return OperationExpression.lessThanOrEqualTo(this.getLeftExpression(), constant);
-    }
-    isLessThan(value) {
+    };
+    OperationExpressionBuilder.prototype.isLessThan = function (value) {
         var constant = ValueExpression.getExpressionType(value);
         return OperationExpression.lessThan(this.getLeftExpression(), constant);
-    }
-    endsWith(value) {
+    };
+    OperationExpressionBuilder.prototype.endsWith = function (value) {
         return OperationExpression.endsWith(this.getLeftExpression(), ValueExpression.string(value));
-    }
-    startsWith(value) {
+    };
+    OperationExpressionBuilder.prototype.startsWith = function (value) {
         return OperationExpression.startsWith(this.getLeftExpression(), ValueExpression.string(value));
-    }
-    property(value) {
-        return new OperationExpressionBuilder(() => {
-            return OperationExpression.propertyAccess(this.getLeftExpression(), value);
+    };
+    OperationExpressionBuilder.prototype.property = function (value) {
+        var _this = this;
+        return new OperationExpressionBuilder(function () {
+            return OperationExpression.propertyAccess(_this.getLeftExpression(), value);
         });
-    }
-    getExpression() {
+    };
+    OperationExpressionBuilder.prototype.getExpression = function () {
         return this.getLeftExpression();
-    }
-}
-class ExpressionBuilder {
-    constructor(Type) {
+    };
+    return OperationExpressionBuilder;
+}());
+var ExpressionBuilder = (function () {
+    function ExpressionBuilder(Type) {
         this.Type || Object;
     }
-    property(property) {
-        return new OperationExpressionBuilder(() => {
-            return OperationExpression.propertyAccess(ValueExpression.type(this.Type), property);
+    ExpressionBuilder.prototype.property = function (property) {
+        var _this = this;
+        return new OperationExpressionBuilder(function () {
+            return OperationExpression.propertyAccess(ValueExpression.type(_this.Type), property);
         });
-    }
-    and(...args) {
+    };
+    ExpressionBuilder.prototype.and = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         return OperationExpression.and.apply(Expression, arguments);
-    }
-    or(...args) {
+    };
+    ExpressionBuilder.prototype.or = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
         return OperationExpression.or.apply(Expression, arguments);
-    }
-    value() {
+    };
+    ExpressionBuilder.prototype.value = function () {
         return new OperationExpressionBuilder(function () {
             return ValueExpression.type(this.Type);
         });
-    }
-}
+    };
+    return ExpressionBuilder;
+}());
 module.exports = ExpressionBuilder;
 //# sourceMappingURL=ExpressionBuilder.js.map

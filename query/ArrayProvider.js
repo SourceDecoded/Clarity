@@ -1,14 +1,22 @@
 "use strict";
-const ArrayVisitor = require("./ArrayVisitor");
-const Future = require("../async/Future");
-const Provider = require("./Provider");
-class ArrayProvider extends Provider {
-    constructor(array = []) {
-        super();
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var ArrayVisitor = require("./ArrayVisitor");
+var Future = require("../async/Future");
+var Provider = require("./Provider");
+var ArrayProvider = (function (_super) {
+    __extends(ArrayProvider, _super);
+    function ArrayProvider(array) {
+        if (array === void 0) { array = []; }
+        _super.call(this);
         this.array = array;
     }
-    toArray(queryable) {
-        return new Future((setValue, setError) => {
+    ArrayProvider.prototype.toArray = function (queryable) {
+        var _this = this;
+        return new Future(function (setValue, setError) {
             var visitor = new ArrayVisitor();
             var query = queryable.getQuery();
             var filter = null;
@@ -18,7 +26,7 @@ class ArrayProvider extends Provider {
             var results = null;
             filter = visitor.parse(query.where);
             sort = visitor.parse(query.orderBy);
-            results = this.array.filter(filter);
+            results = _this.array.filter(filter);
             results = results.sort(sort);
             if (take === Infinity) {
                 take = undefined;
@@ -31,11 +39,12 @@ class ArrayProvider extends Provider {
                 setValue(results);
             }, 0);
         });
-    }
+    };
     ;
-    execute(queryable) {
+    ArrayProvider.prototype.execute = function (queryable) {
         return this.toArray(queryable);
-    }
-}
+    };
+    return ArrayProvider;
+}(Provider));
 module.exports = ArrayProvider;
 //# sourceMappingURL=ArrayProvider.js.map

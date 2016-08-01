@@ -1,7 +1,7 @@
 "use strict";
-const Person = require("../Person");
-const Permission = require("../Permission");
-const PersonToPermission = require("../PersonToPermission");
+var Person = require("../Person");
+var Permission = require("../Permission");
+var PersonToPermission = require("../PersonToPermission");
 module.exports = {
     type: Person,
     hasKey: "id",

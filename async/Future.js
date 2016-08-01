@@ -6,49 +6,49 @@
 * on an empty future.
 */
 "use strict";
-var emptyFnReturnFuture = future => future;
-var notifyFutureIsComplete = future => {
-    future.callbacks["finally"].forEach(callback => {
+var emptyFnReturnFuture = function (future) { return future; };
+var notifyFutureIsComplete = function (future) {
+    future.callbacks["finally"].forEach(function (callback) {
         callback();
     });
-    Object.keys(future.callbacks).forEach(type => {
+    Object.keys(future.callbacks).forEach(function (type) {
         future.callbacks[type] = [];
     });
 };
-var invokeCallback = (future, callback) => {
+var invokeCallback = function (future, callback) {
     if (typeof callback === "function") {
         callback();
     }
     return future;
 };
 var initialState = {
-    try(future) {
+    try: function (future) {
         future.state = retrievingState;
-        const setValue = value => {
+        var setValue = function (value) {
             future.state.handleSetValue(future, value);
         };
-        const setError = error => {
+        var setError = function (error) {
             future.state.handleSetError(future, error);
         };
-        const cancel = reason => future.cancel(reason);
-        future.getValue(setValue, setError, cancel, callback => future.ifCanceled(callback));
+        var cancel = function (reason) { return future.cancel(reason); };
+        future.getValue(setValue, setError, cancel, function (callback) { return future.ifCanceled(callback); });
         return future;
     },
-    then(future, callback) {
+    then: function (future, callback) {
         if (typeof callback === "function") {
             future.callbacks.then.push(callback);
         }
         return future;
     },
-    catch(future, callback) {
-        var wrappedFuture = new Future((setValue, setError, cancel, ifCanceled) => {
-            future.ifError(error => {
+    catch: function (future, callback) {
+        var wrappedFuture = new Future(function (setValue, setError, cancel, ifCanceled) {
+            future.ifError(function (error) {
                 var nextFuture = callback(error);
                 if (nextFuture instanceof Future) {
                     nextFuture.then(setValue);
                     nextFuture.ifError(setError);
                     nextFuture.ifCanceled(cancel);
-                    ifCanceled(reason => {
+                    ifCanceled(function (reason) {
                         nextFuture.cancel(reason);
                     });
                 }
@@ -59,20 +59,20 @@ var initialState = {
             future.ifCanceled(cancel);
             future.then(setValue);
         });
-        wrappedFuture.ifCanceled(() => {
+        wrappedFuture.ifCanceled(function () {
             future.cancel();
         });
         return wrappedFuture;
     },
-    catchCanceled(future, callback) {
-        var wrappedFuture = new Future((setValue, setError, cancel, ifCanceled) => {
-            future.ifCanceled(reason => {
+    catchCanceled: function (future, callback) {
+        var wrappedFuture = new Future(function (setValue, setError, cancel, ifCanceled) {
+            future.ifCanceled(function (reason) {
                 var nextFuture = callback(reason);
                 if (nextFuture instanceof Future) {
                     nextFuture.then(setValue);
                     nextFuture.ifError(setError);
                     nextFuture.ifCanceled(cancel);
-                    ifCanceled(reason => {
+                    ifCanceled(function (reason) {
                         nextFuture.cancel(reason);
                     });
                 }
@@ -83,30 +83,30 @@ var initialState = {
             future.then(setValue);
             future.ifError(setError);
         });
-        wrappedFuture.ifCanceled(() => {
+        wrappedFuture.ifCanceled(function () {
             future.cancel();
         });
         return wrappedFuture;
     },
-    ifCanceled(future, callback) {
+    ifCanceled: function (future, callback) {
         future.callbacks.ifCanceled.push(callback);
         return future;
     },
-    ifError(future, callback) {
+    ifError: function (future, callback) {
         if (typeof callback === "function") {
             future.callbacks.ifError.push(callback);
         }
         return future;
     },
-    chain(future, callback) {
-        var wrappedFuture = new Future((resolve, reject, cancel, ifCanceled) => {
-            future.then(value => {
+    chain: function (future, callback) {
+        var wrappedFuture = new Future(function (resolve, reject, cancel, ifCanceled) {
+            future.then(function (value) {
                 var nextFuture = callback(value);
                 if (nextFuture instanceof Future) {
                     nextFuture.then(resolve);
                     nextFuture.ifError(reject);
                     nextFuture.ifCanceled(cancel);
-                    ifCanceled(reason => {
+                    ifCanceled(function (reason) {
                         nextFuture.cancel(reason);
                     });
                 }
@@ -117,24 +117,24 @@ var initialState = {
             future.ifCanceled(cancel);
             future.ifError(reject);
         });
-        wrappedFuture.ifCanceled(reason => {
+        wrappedFuture.ifCanceled(function (reason) {
             future.cancel(reason);
         });
         return wrappedFuture;
     },
-    cancel(future, cancelationMessage) {
+    cancel: function (future, cancelationMessage) {
         future.isDone = true;
         future.isComplete = true;
         future.isCanceled = true;
         future.state = canceledState;
         future.cancelationMessage = cancelationMessage;
-        future.callbacks.ifCanceled.forEach(callback => {
+        future.callbacks.ifCanceled.forEach(function (callback) {
             callback(cancelationMessage);
         });
         notifyFutureIsComplete(future);
         return future;
     },
-    finally(future, callback) {
+    finally: function (future, callback) {
         if (typeof callback === "function") {
             future.callbacks.finally.push(callback);
         }
@@ -153,25 +153,25 @@ var retrievingState = {
     ifError: initialState.ifError,
     cancel: initialState.cancel,
     finally: initialState.finally,
-    handleSetError: (future, error) => {
+    handleSetError: function (future, error) {
         if (future.state === retrievingState) {
             future.error = error;
             future.isDone = true;
             future.isComplete = true;
             future.state = errorState;
-            future.callbacks["ifError"].forEach(callback => {
+            future.callbacks["ifError"].forEach(function (callback) {
                 callback(error);
             });
         }
         notifyFutureIsComplete(future);
     },
-    handleSetValue: (future, value) => {
+    handleSetValue: function (future, value) {
         if (future.state === retrievingState) {
             future.value = value;
             future.isDone = true;
             future.isComplete = true;
             future.state = doneState;
-            future.callbacks.then.forEach(callback => {
+            future.callbacks.then.forEach(function (callback) {
                 callback(value);
             });
         }
@@ -180,7 +180,7 @@ var retrievingState = {
 };
 var doneState = {
     try: emptyFnReturnFuture,
-    then(future, callback) {
+    then: function (future, callback) {
         callback(future.value);
         return future;
     },
@@ -198,7 +198,7 @@ var errorState = {
     "try": emptyFnReturnFuture,
     then: emptyFnReturnFuture,
     "catch": initialState["catch"],
-    ifError(future, callback) {
+    ifError: function (future, callback) {
         callback(future.error);
         return future;
     },
@@ -215,7 +215,7 @@ var canceledState = {
     then: emptyFnReturnFuture,
     "catch": initialState["catch"],
     catchCanceled: initialState.catchCanceled,
-    ifCanceled(future, callback) {
+    ifCanceled: function (future, callback) {
         callback(future.cancelationMessage);
         return future;
     },
@@ -226,9 +226,9 @@ var canceledState = {
     handleSetError: emptyFnReturnFuture,
     handleSetValue: emptyFnReturnFuture
 };
-const timeOutText = "Timed out.";
-class Future {
-    constructor(getValue) {
+var timeOutText = "Timed out.";
+var Future = (function () {
+    function Future(getValue) {
         this.state = initialState;
         this.callbacks = {
             finally: [],
@@ -247,97 +247,99 @@ class Future {
             this.getValue = emptyFnReturnFuture;
         }
     }
-    try() {
+    Future.prototype.try = function () {
         return this.state.try(this);
-    }
-    ifCanceled(callback) {
+    };
+    Future.prototype.ifCanceled = function (callback) {
         if (typeof callback !== "function") {
             throw new Error("The callback must be a function");
         }
         return this.state.ifCanceled(this, callback);
-    }
-    cancel(reason = "Unknown") {
+    };
+    Future.prototype.cancel = function (reason) {
+        if (reason === void 0) { reason = "Unknown"; }
         return this.state.cancel(this, reason);
-    }
-    then(callback) {
+    };
+    Future.prototype.then = function (callback) {
         if (typeof callback !== "function") {
-            callback = () => { };
+            callback = function () { };
         }
         this["try"]();
         return this.state.then(this, callback);
-    }
-    catch(callback) {
+    };
+    Future.prototype.catch = function (callback) {
         if (typeof callback !== "function") {
             throw new Error("The callback must be a function");
         }
         return this.state.catch(this, callback);
-    }
-    catchCanceled(callback) {
+    };
+    Future.prototype.catchCanceled = function (callback) {
         if (typeof callback !== "function") {
             throw new Error("The callback must be a function");
         }
         return this.state.catchCanceled(this, callback);
-    }
-    chain(callback) {
+    };
+    Future.prototype.chain = function (callback) {
         if (typeof callback !== "function") {
             throw new Error("The callback must be a function");
         }
         return this.state.chain(this, callback);
-    }
-    ifError(callback) {
+    };
+    Future.prototype.ifError = function (callback) {
         if (typeof callback !== "function") {
             throw new Error("The callback must be a function");
         }
         return this.state.ifError(this, callback);
-    }
-    finally(callback) {
+    };
+    Future.prototype.finally = function (callback) {
         if (typeof callback !== "function") {
             throw new Error("The callback must be a function");
         }
         return this.state.finally(this, callback);
-    }
-    setTimeout(milliseconds) {
-        setTimeout(() => {
-            this.cancel(timeOutText);
+    };
+    Future.prototype.setTimeout = function (milliseconds) {
+        var _this = this;
+        setTimeout(function () {
+            _this.cancel(timeOutText);
         }, milliseconds);
         return this;
-    }
-    ifTimedOut(callback) {
+    };
+    Future.prototype.ifTimedOut = function (callback) {
         if (typeof callback !== "function") {
             throw new Error("The callback must be a function");
         }
-        this.ifCanceled(reason => {
+        this.ifCanceled(function (reason) {
             if (reason === timeOutText) {
                 callback();
             }
         });
         return this;
-    }
-    onComplete() {
+    };
+    Future.prototype.onComplete = function () {
         this.finally.apply(this, arguments);
-    }
+    };
     /**
      * Class methods.
      */
-    static fromResult(value) {
-        return new Future(resolve => {
+    Future.fromResult = function (value) {
+        return new Future(function (resolve) {
             resolve(value);
         }).try();
-    }
-    static fromError(error) {
-        return new Future((setValue, setError) => {
+    };
+    Future.fromError = function (error) {
+        return new Future(function (setValue, setError) {
             setError(error);
         }).try();
-    }
-    static fromCanceled(reason) {
-        const future = new Future(() => { });
+    };
+    Future.fromCanceled = function (reason) {
+        var future = new Future(function () { });
         future.cancel(reason);
         return future;
-    }
-    static all(futures) {
+    };
+    Future.all = function (futures) {
         var length = futures.length;
         var results = new Array(length);
-        futures = futures.map(value => {
+        futures = futures.map(function (value) {
             if (value instanceof Future) {
                 return value;
             }
@@ -345,27 +347,28 @@ class Future {
                 return Future.fromResult(value);
             }
         });
-        var future = new Future((setValue, setError, cancel) => {
+        var future = new Future(function (setValue, setError, cancel) {
             var doneCount = 0;
             if (futures.length === 0) {
                 setValue([]);
             }
             else {
-                futures.forEach((future, index) => {
-                    future.then(value => {
+                futures.forEach(function (future, index) {
+                    future.then(function (value) {
                         results[index] = value;
                         doneCount++;
                         if (doneCount === length) {
                             setValue(results);
                         }
-                    }).ifError(e => {
+                    }).ifError(function (e) {
                         setError(e);
                     }).ifCanceled(cancel);
                 });
             }
         });
         return future;
-    }
-}
+    };
+    return Future;
+}());
 module.exports = Future;
 //# sourceMappingURL=Future.js.map

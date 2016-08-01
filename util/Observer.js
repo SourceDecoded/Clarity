@@ -1,9 +1,10 @@
 "use strict";
-class Observer {
-    constructor(unbind, filter, map) {
-        this.emptyFn = () => { };
-        this.returnTrue = () => { return true; };
-        this.returnItem = (item) => { return item; };
+var Observer = (function () {
+    function Observer(unbind, filter, map) {
+        var _this = this;
+        this.emptyFn = function () { };
+        this.returnTrue = function () { return true; };
+        this.returnItem = function (item) { return item; };
         this._onEach = this.emptyFn;
         this._onError = this.emptyFn;
         this._observers = [];
@@ -16,20 +17,20 @@ class Observer {
         if (typeof this._map !== "function") {
             throw new TypeError("Expected a function.");
         }
-        var dispose = () => {
-            this._unbind();
-            this._state = disposedState;
+        var dispose = function () {
+            _this._unbind();
+            _this._state = disposedState;
         };
         var defaultState = {
-            stop: () => {
-                this._state = stoppedState;
+            stop: function () {
+                _this._state = stoppedState;
             },
             start: this.emptyFn,
-            notify: (e) => {
-                if (this._filter(e)) {
-                    var value = this._map(e);
-                    this._onEach(value);
-                    this._observers.slice(0).forEach(function (observer) {
+            notify: function (e) {
+                if (_this._filter(e)) {
+                    var value = _this._map(e);
+                    _this._onEach(value);
+                    _this._observers.slice(0).forEach(function (observer) {
                         observer.notify(value);
                     });
                 }
@@ -52,27 +53,27 @@ class Observer {
         };
         this._state = defaultState;
     }
-    notify(e) {
+    Observer.prototype.notify = function (e) {
         this._state.notify(e);
-    }
+    };
     ;
-    copy() {
+    Observer.prototype.copy = function () {
         return this.filter(function () { return true; });
-    }
+    };
     ;
-    stop() {
+    Observer.prototype.stop = function () {
         this._state.stop();
-    }
+    };
     ;
-    start() {
+    Observer.prototype.start = function () {
         this._state.start();
-    }
+    };
     ;
-    dispose() {
+    Observer.prototype.dispose = function () {
         this._state.dispose();
-    }
+    };
     ;
-    filter(filter) {
+    Observer.prototype.filter = function (filter) {
         var self = this;
         if (typeof filter !== "function") {
             throw new Error("Filter needs to be a function.");
@@ -85,9 +86,9 @@ class Observer {
         }, filter);
         self._observers.push(observer);
         return observer;
-    }
+    };
     ;
-    map(map) {
+    Observer.prototype.map = function (map) {
         var self = this;
         var observer = new Observer(function () {
             var index = self._observers.indexOf(observer);
@@ -97,23 +98,24 @@ class Observer {
         }, undefined, map);
         self._observers.push(observer);
         return observer;
-    }
+    };
     ;
-    onEach(callback) {
+    Observer.prototype.onEach = function (callback) {
         var self = this;
         if (typeof callback !== "function") {
             throw new Error("Expected a function.");
         }
         self._onEach = callback;
         return self;
-    }
+    };
     ;
-    onError(callback) {
+    Observer.prototype.onError = function (callback) {
         var self = this;
         self._onError = callback;
         return self;
-    }
+    };
     ;
-}
+    return Observer;
+}());
 module.exports = Observer;
 //# sourceMappingURL=Observer.js.map

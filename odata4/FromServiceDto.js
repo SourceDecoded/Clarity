@@ -1,10 +1,10 @@
 "use strict";
-const EdmPackage = require("../data/Edm");
-const MultiKeyMap = require("../collections/MultiKeyMap");
-const fromServiceHandlerCollection = require("./fromServiceHandlerCollection");
-const toEnum = require("../string/toEnum");
-const toEnumFlag = require("../string/toEnumFlag");
-const util = require("./util");
+var EdmPackage = require("../data/Edm");
+var MultiKeyMap = require("../collections/MultiKeyMap");
+var fromServiceHandlerCollection = require("./fromServiceHandlerCollection");
+var toEnum = require("../string/toEnum");
+var toEnumFlag = require("../string/toEnumFlag");
+var util = require("./util");
 require("../number/toEnumString");
 require("../number/toEnumFlagString");
 var primitiveHandlers = fromServiceHandlerCollection;
@@ -27,81 +27,83 @@ var enumFlagHandler = function (property, value) {
     }
     return 0;
 };
-class FromServiceDto {
-    constructor(edm) {
+var FromServiceDto = (function () {
+    function FromServiceDto(edm) {
+        var _this = this;
         this.edm = edm;
         this.handlers = new MultiKeyMap();
         this.namespaceToType = util.createNamespaceToTypeHashmap(edm);
-        edm.getModels().getValues().forEach((model) => {
+        edm.getModels().getValues().forEach(function (model) {
             var entity = new model.type();
-            this.getHandlers(entity);
+            _this.getHandlers(entity);
         });
     }
-    getHandlers(entity) {
+    FromServiceDto.prototype.getHandlers = function (entity) {
+        var _this = this;
         var Type = entity.constructor;
         var model = this.edm.getModelByType(Type);
         var properties = model.properties;
-        Object.keys(properties).forEach((key) => {
+        Object.keys(properties).forEach(function (key) {
             var property = properties[key];
             if (property.type === EdmPackage.Enum) {
-                this.handlers.add(Type, key, (value) => {
+                _this.handlers.add(Type, key, function (value) {
                     return enumHandler(property, value);
                 });
                 return;
             }
             else if (property.type === EdmPackage.EnumFlag) {
-                this.handlers.add(Type, key, (value) => {
+                _this.handlers.add(Type, key, function (value) {
                     return enumFlagHandler(property, value);
                 });
                 return;
             }
-            this.handlers.add(Type, key, primitiveHandlers.get(property.type) || defaultHandler);
+            _this.handlers.add(Type, key, primitiveHandlers.get(property.type) || defaultHandler);
         });
-        this.edm.getOneToOneRelationships(entity).forEach((relationship) => {
-            this.handlers.add(Type, relationship.hasOne, (dto) => {
-                var model = this.edm.getModelByType(relationship.ofType);
-                return this.resolve(model, dto);
+        this.edm.getOneToOneRelationships(entity).forEach(function (relationship) {
+            _this.handlers.add(Type, relationship.hasOne, function (dto) {
+                var model = _this.edm.getModelByType(relationship.ofType);
+                return _this.resolve(model, dto);
             });
         });
-        this.edm.getOneToOneAsTargetRelationships(entity).forEach((relationship) => {
-            this.handlers.add(Type, relationship.withOne, (dto) => {
-                var model = this.edm.getModelByType(relationship.type);
-                return this.resolve(model, dto);
+        this.edm.getOneToOneAsTargetRelationships(entity).forEach(function (relationship) {
+            _this.handlers.add(Type, relationship.withOne, function (dto) {
+                var model = _this.edm.getModelByType(relationship.type);
+                return _this.resolve(model, dto);
             });
         });
-        this.edm.getOneToManyRelationships(entity).forEach((relationship) => {
-            this.handlers.add(Type, relationship.hasMany, (array) => {
-                return array.map((dto) => {
-                    var model = this.edm.getModelByType(relationship.ofType);
-                    return this.resolve(model, dto);
+        this.edm.getOneToManyRelationships(entity).forEach(function (relationship) {
+            _this.handlers.add(Type, relationship.hasMany, function (array) {
+                return array.map(function (dto) {
+                    var model = _this.edm.getModelByType(relationship.ofType);
+                    return _this.resolve(model, dto);
                 });
             });
         });
-        this.edm.getOneToManyAsTargetRelationships(entity).forEach((relationship) => {
-            this.handlers.add(Type, relationship.withOne, (dto) => {
-                var model = this.edm.getModelByType(relationship.type);
-                return this.resolve(model, dto);
+        this.edm.getOneToManyAsTargetRelationships(entity).forEach(function (relationship) {
+            _this.handlers.add(Type, relationship.withOne, function (dto) {
+                var model = _this.edm.getModelByType(relationship.type);
+                return _this.resolve(model, dto);
             });
         });
-        this.edm.getManyToManyRelationships(entity).forEach((relationship) => {
-            this.handlers.add(Type, relationship.hasMany, (array) => {
-                return array.map((dto) => {
-                    var model = this.edm.getModelByType(relationship.ofType);
-                    return this.resolve(model, dto);
+        this.edm.getManyToManyRelationships(entity).forEach(function (relationship) {
+            _this.handlers.add(Type, relationship.hasMany, function (array) {
+                return array.map(function (dto) {
+                    var model = _this.edm.getModelByType(relationship.ofType);
+                    return _this.resolve(model, dto);
                 });
             });
         });
-        this.edm.getManyToManyAsTargetRelationships(entity).forEach((relationship) => {
-            this.handlers.add(Type, relationship.withMany, (array) => {
-                return array.map((dto) => {
-                    var model = this.edm.getModelByType(relationship.type);
-                    return this.resolve(model, dto);
+        this.edm.getManyToManyAsTargetRelationships(entity).forEach(function (relationship) {
+            _this.handlers.add(Type, relationship.withMany, function (array) {
+                return array.map(function (dto) {
+                    var model = _this.edm.getModelByType(relationship.type);
+                    return _this.resolve(model, dto);
                 });
             });
         });
         return this.handlers;
-    }
-    resolve(model, dto) {
+    };
+    FromServiceDto.prototype.resolve = function (model, dto) {
         var odataType = dto["@odata.type"];
         var Type;
         if (odataType) {
@@ -112,15 +114,16 @@ class FromServiceDto {
         }
         var entity = new Type();
         var handlers = this.handlers;
-        handlers.get(Type).getKeys().forEach((key) => {
+        handlers.get(Type).getKeys().forEach(function (key) {
             var handler = handlers.get(Type, key);
             if (typeof handler === "function" && dto[key] != null) {
                 entity[key] = handler(dto[key]);
             }
         });
         return entity;
-    }
+    };
     ;
-}
+    return FromServiceDto;
+}());
 module.exports = FromServiceDto;
 //# sourceMappingURL=FromServiceDto.js.map

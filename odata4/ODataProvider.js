@@ -1,13 +1,13 @@
 "use strict";
-const Future = require("../async/Future");
-const ODataVisitor = require("./ODataVisitor");
-const ODataIncludeVisitor = require("./ODataIncludeVisitor");
-const queryString = require("../web/queryString");
-const ExpressionPackage = require("../query/Expression");
-const FromServiceDto = require("./FromServiceDto");
+var Future = require("../async/Future");
+var ODataVisitor = require("./ODataVisitor");
+var ODataIncludeVisitor = require("./ODataIncludeVisitor");
+var queryString = require("../web/queryString");
+var ExpressionPackage = require("../query/Expression");
+var FromServiceDto = require("./FromServiceDto");
 var OperationExpression = ExpressionPackage.OperationExpression;
-class ODataProvider {
-    constructor(config) {
+var ODataProvider = (function () {
+    function ODataProvider(config) {
         this.config = config || {};
         this.url = config.url;
         this.edm = config.edm;
@@ -30,7 +30,7 @@ class ODataProvider {
         }
         this.fromServiceDto = new FromServiceDto(this.edm);
     }
-    buildUrl(expression, additionalString) {
+    ODataProvider.prototype.buildUrl = function (expression, additionalString) {
         var odataVisitor = new ODataVisitor(this.config);
         var includeVisitor = new ODataIncludeVisitor(this.config);
         var where = odataVisitor.parse(expression.where);
@@ -41,60 +41,64 @@ class ODataProvider {
         var parameterQueryString = queryString.toString(expression.parameters, false);
         var parts = Array.prototype.slice.call(arguments, 1);
         parts.unshift(where, skip, take, orderBy, include, parameterQueryString);
-        var odataString = parts.filter((part) => {
+        var odataString = parts.filter(function (part) {
             return part !== "";
         }).join("&");
         return this.url + (odataString ? "?" + odataString : "");
-    }
-    requestHandler(url) {
+    };
+    ODataProvider.prototype.requestHandler = function (url) {
         return this.ajaxProvider.request(url, {
             method: "GET"
         });
-    }
-    convertDtos(dtos) {
-        return dtos.map((dto) => {
-            return this.fromServiceDto.resolve(this.model, dto);
+    };
+    ODataProvider.prototype.convertDtos = function (dtos) {
+        var _this = this;
+        return dtos.map(function (dto) {
+            return _this.fromServiceDto.resolve(_this.model, dto);
         });
-    }
-    count(queryable) {
+    };
+    ODataProvider.prototype.count = function (queryable) {
         var expression = queryable.getExpression();
         // Overriding take so no results are return, because we only want a count.
         expression.take = OperationExpression.take(0);
         var url = this.buildUrl(expression, "$count=true");
-        return this.requestHandler(url).chain((response) => {
+        return this.requestHandler(url).chain(function (response) {
             return response["@odata.count"];
-        })["catch"]((e) => {
+        })["catch"](function (e) {
             return Future.fromError(e);
         });
-    }
-    toArrayWithCount(queryable) {
+    };
+    ODataProvider.prototype.toArrayWithCount = function (queryable) {
+        var _this = this;
         var expression = queryable.getExpression();
         var url = this.buildUrl(expression, "$count=true");
-        return this.requestHandler(url).chain((response) => {
+        return this.requestHandler(url).chain(function (response) {
             if (!Array.isArray(response.value)) {
                 return Future.fromError(new Error("XHR response does not contain expected value node."));
             }
             return {
                 count: response["@odata.count"],
-                array: this.convertDtos(response.value)
+                array: _this.convertDtos(response.value)
             };
         });
-    }
+    };
     ;
     //This should always return a Future of an array of objects.
-    execute(queryable) {
+    ODataProvider.prototype.execute = function (queryable) {
+        var _this = this;
         var expression = queryable.getExpression();
         var url = this.buildUrl(expression);
-        return this.requestHandler(url).chain((response) => {
+        return this.requestHandler(url).chain(function (response) {
             if (!Array.isArray(response.value)) {
                 return Future.fromError(new Error("XHR response does not contain expected value node."));
             }
-            return this.convertDtos(response.value);
+            return _this.convertDtos(response.value);
         });
-    }
-    toArray(queryable) {
+    };
+    ODataProvider.prototype.toArray = function (queryable) {
         return this.execute(queryable);
-    }
-}
+    };
+    return ODataProvider;
+}());
 module.exports = ODataProvider;
 //# sourceMappingURL=ODataProvider.js.map

@@ -1,9 +1,9 @@
 "use strict";
-class QueryExpressionVisitor {
-    constructor(reduceVisitor) {
+var QueryExpressionVisitor = (function () {
+    function QueryExpressionVisitor(reduceVisitor) {
         this.reduceVisitor = reduceVisitor;
     }
-    program(programNode) {
+    QueryExpressionVisitor.prototype.program = function (programNode) {
         programNode.body.forEach(function (childNode) {
             var methodName = childNode.type.toCamelCase();
             if (typeof childNode.type.toCamelCase() !== "function") {
@@ -11,8 +11,8 @@ class QueryExpressionVisitor {
             }
             this[methodName](childNode);
         });
-    }
-    binaryExpression(binaryNode) {
+    };
+    QueryExpressionVisitor.prototype.binaryExpression = function (binaryNode) {
         var operator = binaryNode.operator;
         var leftSideExpression = binaryNode.left.type.toCamelCase();
         var rightSideExpression = binaryNode.right.type.toCamelCase();
@@ -48,8 +48,8 @@ class QueryExpressionVisitor {
         else if (operator === "<=") {
             return this.reduceVisitor.equalTo(leftValue, rightValue);
         }
-    }
-    blockStatement(blockNode) {
+    };
+    QueryExpressionVisitor.prototype.blockStatement = function (blockNode) {
         blockNode.body.forEach(function (programNode) {
             var methodName = programNode.type.toCamelCase();
             if (typeof programNode.type.toCamelCase() !== "function") {
@@ -57,19 +57,20 @@ class QueryExpressionVisitor {
             }
             this[methodName](programNode);
         });
-    }
-    returnStatement() {
-    }
-    logicalExpression() {
-    }
-    memberExpression() {
-    }
-    identifier() {
-    }
-    literal() {
-    }
-    callExpression() {
-    }
-}
+    };
+    QueryExpressionVisitor.prototype.returnStatement = function () {
+    };
+    QueryExpressionVisitor.prototype.logicalExpression = function () {
+    };
+    QueryExpressionVisitor.prototype.memberExpression = function () {
+    };
+    QueryExpressionVisitor.prototype.identifier = function () {
+    };
+    QueryExpressionVisitor.prototype.literal = function () {
+    };
+    QueryExpressionVisitor.prototype.callExpression = function () {
+    };
+    return QueryExpressionVisitor;
+}());
 module.exports = QueryExpressionVisitor;
 //# sourceMappingURL=QueryExpressionVisitor.js.map

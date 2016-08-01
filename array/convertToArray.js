@@ -1,5 +1,5 @@
 "use strict";
-module.exports = (arrayLike) => {
+module.exports = function (arrayLike) {
     var array = [];
     for (var x = 0; x < arrayLike.length; x++) {
         array.push(arrayLike[x]);

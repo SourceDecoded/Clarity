@@ -1,6 +1,6 @@
 "use strict";
-class Person {
-    constructor() {
+var Person = (function () {
+    function Person() {
         this.id = null;
         this.humanoidType = 0;
         this.firstName = null;
@@ -13,6 +13,7 @@ class Person {
         this.phoneNumbers = [];
         this.permissions = [];
     }
-}
+    return Person;
+}());
 module.exports = Person;
 //# sourceMappingURL=Person.js.map

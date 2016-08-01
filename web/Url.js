@@ -1,12 +1,12 @@
 "use strict";
-const queryString = require("./queryString");
+var queryString = require("./queryString");
 //Thanks Douglas Crockford. Found in the book: "Javascript the Good Parts".
 var parse_url = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
 var pageRegExp = /\.[^\.]*?$/i;
 var parseQuery = queryString.parse;
 var stringify = queryString.toString;
-class Url {
-    constructor(url) {
+var Url = (function () {
+    function Url(url) {
         this.getParsedQuery = function () {
             return this.queryStringValues;
         };
@@ -36,7 +36,7 @@ class Url {
             this.port = parseInt(this.port, 10);
         }
     }
-    getHref() {
+    Url.prototype.getHref = function () {
         var schemeString = this.scheme || "http";
         var hostString = this.host || "";
         var slashString = this.slash || "";
@@ -45,51 +45,51 @@ class Url {
         var pathString = this.path ? "/" + encodeURI(this.path) : "";
         var queryString = this.query ? "?" + this.query : "";
         return schemeString + ":" + slashString + hostString + portString + pathString + queryString + hashString;
-    }
-    getScheme() {
+    };
+    Url.prototype.getScheme = function () {
         return this.scheme;
-    }
-    setScheme(value) {
+    };
+    Url.prototype.setScheme = function (value) {
         this.scheme = value;
-    }
-    getSlash() {
+    };
+    Url.prototype.getSlash = function () {
         return decodeURI(this.slash);
-    }
-    setSlash(value) {
+    };
+    Url.prototype.setSlash = function (value) {
         this.slash = value;
-    }
-    getHost() {
+    };
+    Url.prototype.getHost = function () {
         return this.host;
-    }
-    setHost(value) {
+    };
+    Url.prototype.setHost = function (value) {
         this.host = value;
-    }
-    getPort() {
+    };
+    Url.prototype.getPort = function () {
         return this.port;
-    }
-    setPort(value) {
+    };
+    Url.prototype.setPort = function (value) {
         this.port = value;
-    }
-    getPath() {
+    };
+    Url.prototype.getPath = function () {
         return decodeURI(this.path);
-    }
-    setPath(value) {
+    };
+    Url.prototype.setPath = function (value) {
         this.path = value;
-    }
-    getQuery() {
+    };
+    Url.prototype.getQuery = function () {
         if (!this.query) {
             return "";
         }
         return decodeURI(this.query);
-    }
-    setQuery(obj) {
+    };
+    Url.prototype.setQuery = function (obj) {
         this.queryStringValues = obj;
         this.query = stringify(obj).substr(1);
-    }
-    setHash(value) {
+    };
+    Url.prototype.setHash = function (value) {
         this.hash = value;
-    }
-    getPage() {
+    };
+    Url.prototype.getPage = function () {
         var tmpArray;
         if (this.path) {
             tmpArray = this.path.split("/");
@@ -98,8 +98,8 @@ class Url {
         else {
             return "";
         }
-    }
-    getExtension() {
+    };
+    Url.prototype.getExtension = function () {
         var page = this.getPage();
         if (page) {
             var regExp = /\.[^\.]*?$/i;
@@ -109,10 +109,11 @@ class Url {
         else {
             return "";
         }
-    }
-    toString() {
+    };
+    Url.prototype.toString = function () {
         return this.getHref();
-    }
-}
+    };
+    return Url;
+}());
 module.exports = Url;
 //# sourceMappingURL=Url.js.map

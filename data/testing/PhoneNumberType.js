@@ -1,9 +1,12 @@
 "use strict";
-const ODataAnnotation = require("../../odata4/ODataAnnotation");
-const EdmPackage = require("../../data/Edm");
-class PhoneNumberType {
-}
-PhoneNumberType.annotations = [new ODataAnnotation("Namespace.PhoneNumberType")];
+var ODataAnnotation = require("../../odata4/ODataAnnotation");
+var EdmPackage = require("../../data/Edm");
+var PhoneNumberType = (function () {
+    function PhoneNumberType() {
+    }
+    PhoneNumberType.annotations = [new ODataAnnotation("Namespace.PhoneNumberType")];
+    return PhoneNumberType;
+}());
 PhoneNumberType.None = new EdmPackage.Enum(0);
 PhoneNumberType.None.name = "None";
 PhoneNumberType.Home = new EdmPackage.Enum(1);

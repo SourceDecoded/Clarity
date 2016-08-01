@@ -1,5 +1,5 @@
 "use strict";
-const Hashmap = require("../collections/Hashmap");
+var Hashmap = require("../collections/Hashmap");
 Array.prototype.union = function (array) {
     var hashmap = new Hashmap();
     var add = function (value) {

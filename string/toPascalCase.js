@@ -9,7 +9,7 @@ String.prototype.toPascalCase = function (delimiter) {
     }
     return toPascalCase(this);
 };
-module.exports = (string, delimiter) => {
+module.exports = function (string, delimiter) {
     return String.prototype.toPascalCase.apply(string, delimiter);
 };
 //# sourceMappingURL=toPascalCase.js.map

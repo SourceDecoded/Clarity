@@ -1,8 +1,8 @@
 "use strict";
-const RigidBody = require("./RigidBody");
-const Rect = require("../Rect");
-class RigidBodyStyle {
-    constructor() {
+var RigidBody = require("./RigidBody");
+var Rect = require("../Rect");
+var RigidBodyStyle = (function () {
+    function RigidBodyStyle() {
         this.background = {
             color: {
                 red: 0,
@@ -18,17 +18,17 @@ class RigidBodyStyle {
             clip: false,
         };
     }
-    addedToView(view) {
+    RigidBodyStyle.prototype.addedToView = function (view) {
         this.view = view;
         this.rigidBody = this.view.getBehaviors(RigidBody)[0];
         if (!this.rigidBody) {
             throw new Error("RigidBodyStyle must have a RigidBody on the view too.");
         }
-    }
-    createRgba(rgba) {
+    };
+    RigidBodyStyle.prototype.createRgba = function (rgba) {
         return "rgba(" + rgba.red + "," + rgba.green + "," + rgba.blue + "," + rgba.alpha + ")";
-    }
-    drawBackground(context, viewRect, intersection) {
+    };
+    RigidBodyStyle.prototype.drawBackground = function (context, viewRect, intersection) {
         if (this.background.color !== null) {
             var pointIndex;
             var body = this.rigidBody.body;
@@ -64,13 +64,14 @@ class RigidBodyStyle {
                 context.translate(-x, -y);
             }
         }
-    }
-    draw(context, viewRect) {
+    };
+    RigidBodyStyle.prototype.draw = function (context, viewRect) {
         var intersection = Rect.getIntersection(this.view, viewRect);
         if (intersection && this.rigidBody) {
             this.drawBackground(context, viewRect, intersection);
         }
-    }
-}
+    };
+    return RigidBodyStyle;
+}());
 module.exports = RigidBodyStyle;
 //# sourceMappingURL=RigidBodyStyle.js.map

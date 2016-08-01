@@ -1,35 +1,36 @@
 "use strict";
-const RigidBody = require("./RigidBody");
-const Matter = require("matter-js");
-const MultiKeyMap = require("../../collections/MultiKeyMap");
+var RigidBody = require("./RigidBody");
+var Matter = require("matter-js");
+var MultiKeyMap = require("../../collections/MultiKeyMap");
 var Composite = Matter.Composite;
 var Engine = Matter.Engine;
 var Events = Matter.Events;
-class PhysicsEngine {
-    constructor(rootView) {
+var PhysicsEngine = (function () {
+    function PhysicsEngine(rootView) {
+        var _this = this;
         this.bodyToViewHash = {};
         this.collisionStartHandlers = new MultiKeyMap();
         this.collisionActiveHandlers = new MultiKeyMap();
         this.collisionEndHandlers = new MultiKeyMap();
-        rootView.observe("addedChildMutation", (event) => {
-            this.addedChildMutation(event);
+        rootView.observe("addedChildMutation", function (event) {
+            _this.addedChildMutation(event);
         });
-        rootView.observe("removedChildMutation", (event) => {
-            this.removedChildMutation(event);
+        rootView.observe("removedChildMutation", function (event) {
+            _this.removedChildMutation(event);
         });
-        rootView.observe("addedBehavior", (event) => {
-            this.addedBehavior(event);
+        rootView.observe("addedBehavior", function (event) {
+            _this.addedBehavior(event);
         });
-        rootView.observe("removedBehavior", (event) => {
-            this.removedBehavior(event);
+        rootView.observe("removedBehavior", function (event) {
+            _this.removedBehavior(event);
         });
         var renderer = {
-            create: () => {
+            create: function () {
                 return {
                     controller: renderer
                 };
             },
-            world: (engine) => {
+            world: function (engine) {
             }
         };
         this.engine = Engine.create({
@@ -39,136 +40,139 @@ class PhysicsEngine {
         });
         this.engine.enableSleeping = true;
         this.registerRigidBodies(rootView);
-        Events.on(this.engine, 'collisionStart', (event) => {
+        Events.on(this.engine, 'collisionStart', function (event) {
             var pairs = event.pairs;
             for (var i = 0; i < pairs.length; i++) {
                 var pair = pairs[i];
-                this.handleStartCollision(event, pair.bodyA, pair.bodyB);
+                _this.handleStartCollision(event, pair.bodyA, pair.bodyB);
             }
         });
-        Events.on(this.engine, 'collisionActive', (event) => {
+        Events.on(this.engine, 'collisionActive', function (event) {
             var pairs = event.pairs;
             for (var i = 0; i < pairs.length; i++) {
                 var pair = pairs[i];
-                this.handleActiveCollision(event, pair.bodyA, pair.bodyB);
+                _this.handleActiveCollision(event, pair.bodyA, pair.bodyB);
             }
         });
-        Events.on(this.engine, 'collisionEnd', (event) => {
+        Events.on(this.engine, 'collisionEnd', function (event) {
             var pairs = event.pairs;
             for (var i = 0; i < pairs.length; i++) {
                 var pair = pairs[i];
-                this.handleEndCollision(event, pair.bodyA, pair.bodyB);
+                _this.handleEndCollision(event, pair.bodyA, pair.bodyB);
             }
         });
     }
-    addedChildMutation(event) {
+    PhysicsEngine.prototype.addedChildMutation = function (event) {
         this.registerRigidBodies(event.child);
-    }
-    removedChildMutation(event) {
+    };
+    PhysicsEngine.prototype.removedChildMutation = function (event) {
         this.unregisterRigidBodies(event.child);
-    }
-    addedBehavior(event) {
+    };
+    PhysicsEngine.prototype.addedBehavior = function (event) {
         var behavior = event.behavior;
         if (behavior instanceof RigidBody) {
             this.addRigidBody(behavior, event.view);
         }
-    }
-    removedBehavior(event) {
+    };
+    PhysicsEngine.prototype.removedBehavior = function (event) {
         var behavior = event.behavior;
         if (behavior instanceof RigidBody) {
             this.removeRigidBody(behavior, event.view);
         }
-    }
-    addRigidBody(rigidBody, view) {
+    };
+    PhysicsEngine.prototype.addRigidBody = function (rigidBody, view) {
         var body = rigidBody.body;
         this.bodyToViewHash[body.id] = {
             view: view,
             rigidBody: rigidBody
         };
         Composite.add(this.engine.world, body);
-    }
-    removeRigidBody(rigidBody, view) {
+    };
+    PhysicsEngine.prototype.removeRigidBody = function (rigidBody, view) {
         delete this.bodyToViewHash[rigidBody.body.id];
         Composite.remove(this.engine.world, rigidBody.body, true);
-    }
-    registerRigidBodies(view) {
+    };
+    PhysicsEngine.prototype.registerRigidBodies = function (view) {
+        var _this = this;
         var rigidBody = view.getBehaviors(RigidBody)[0];
         if (rigidBody) {
             this.addRigidBody(rigidBody, view);
         }
-        view.children.forEach((child) => {
-            this.registerRigidBodies(child);
+        view.children.forEach(function (child) {
+            _this.registerRigidBodies(child);
         });
-    }
-    unregisterRigidBodies(view) {
+    };
+    PhysicsEngine.prototype.unregisterRigidBodies = function (view) {
+        var _this = this;
         var rigidBody = view.getBehaviors(RigidBody)[0];
         if (rigidBody) {
             this.removeRigidBody(rigidBody.body, view);
         }
-        view.children.forEach((child) => {
-            this.unregisterRigidBodies(child);
+        view.children.forEach(function (child) {
+            _this.unregisterRigidBodies(child);
         });
-    }
-    handleStartCollision(event, bodyOne, bodyTwo) {
+    };
+    PhysicsEngine.prototype.handleStartCollision = function (event, bodyOne, bodyTwo) {
         var rigidBodyOne = this.bodyToViewHash[bodyOne.id].rigidBody;
         var rigidBodyTwo = this.bodyToViewHash[bodyTwo.id].rigidBody;
         var handler = this.collisionStartHandlers.get(rigidBodyOne.type, rigidBodyTwo.type);
         if (handler) {
             handler(event, rigidBodyOne, rigidBodyTwo);
         }
-    }
-    handleActiveCollision(event, bodyOne, bodyTwo) {
+    };
+    PhysicsEngine.prototype.handleActiveCollision = function (event, bodyOne, bodyTwo) {
         var rigidBodyOne = this.bodyToViewHash[bodyOne.id].rigidBody;
         var rigidBodyTwo = this.bodyToViewHash[bodyTwo.id].rigidBody;
         var handler = this.collisionActiveHandlers.get(rigidBodyOne.type, rigidBodyTwo.type);
         if (handler) {
             handler(event, rigidBodyOne, rigidBodyTwo);
         }
-    }
-    handleEndCollision(event, bodyOne, bodyTwo) {
+    };
+    PhysicsEngine.prototype.handleEndCollision = function (event, bodyOne, bodyTwo) {
         var rigidBodyOne = this.bodyToViewHash[bodyOne.id].rigidBody;
         var rigidBodyTwo = this.bodyToViewHash[bodyTwo.id].rigidBody;
         var handler = this.collisionEndHandlers.get(rigidBodyOne.type, rigidBodyTwo.type);
         if (handler) {
             handler(event, rigidBodyOne, rigidBodyTwo);
         }
-    }
-    update() {
+    };
+    PhysicsEngine.prototype.update = function () {
         Engine.update(this.engine, 16);
-    }
-    addCollisionStartHandler(first, second, handler) {
+    };
+    PhysicsEngine.prototype.addCollisionStartHandler = function (first, second, handler) {
         this.collisionStartHandlers.add(first, second, handler);
         //Reverse function if the sequence is in reverse order.
         this.collisionStartHandlers.add(second, first, function (event, bodyOne, bodyTwo) {
             handler(event, bodyTwo, bodyOne);
         });
-    }
-    removeCollisionStartHandler(first, second) {
+    };
+    PhysicsEngine.prototype.removeCollisionStartHandler = function (first, second) {
         this.collisionStartHandlers.remove(first, second);
         this.collisionStartHandlers.remove(second, first);
-    }
-    addCollisionActiveHandler(first, second, handler) {
+    };
+    PhysicsEngine.prototype.addCollisionActiveHandler = function (first, second, handler) {
         this.collisionActiveHandlers.add(first, second, handler);
         //Reverse function if the sequence is in reverse order.
         this.collisionActiveHandlers.add(second, first, function (event, bodyOne, bodyTwo) {
             handler(event, bodyTwo, bodyOne);
         });
-    }
-    removeCollisionActiveHandler(first, second) {
+    };
+    PhysicsEngine.prototype.removeCollisionActiveHandler = function (first, second) {
         this.collisionActiveHandlers.remove(first, second);
         this.collisionActiveHandlers.remove(second, first);
-    }
-    addCollisionEndHandler(first, second, handler) {
+    };
+    PhysicsEngine.prototype.addCollisionEndHandler = function (first, second, handler) {
         this.collisionEndHandlers.add(first, second, handler);
         //Reverse function if the sequence is in reverse order.
         this.collisionEndHandlers.add(second, first, function (event, bodyOne, bodyTwo) {
             handler(event, bodyTwo, bodyOne);
         });
-    }
-    removeCollisionEndHandler(first, second) {
+    };
+    PhysicsEngine.prototype.removeCollisionEndHandler = function (first, second) {
         this.collisionEndHandlers.remove(first, second);
         this.collisionEndHandlers.remove(second, first);
-    }
-}
+    };
+    return PhysicsEngine;
+}());
 module.exports = PhysicsEngine;
 //# sourceMappingURL=PhysicsEngine.js.map

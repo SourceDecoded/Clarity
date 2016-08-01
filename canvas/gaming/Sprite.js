@@ -1,6 +1,6 @@
 "use strict";
-class Sprite {
-    constructor() {
+var Sprite = (function () {
+    function Sprite() {
         this.angle = 0;
         this.angleVelocity = 0;
         this.force = {
@@ -23,6 +23,7 @@ class Sprite {
             height: 0
         };
     }
-}
+    return Sprite;
+}());
 module.exports = Sprite;
 //# sourceMappingURL=Sprite.js.map

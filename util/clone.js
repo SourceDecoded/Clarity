@@ -1,5 +1,6 @@
 "use strict";
-module.exports = function clone(object, deep = false) {
+module.exports = function clone(object, deep) {
+    if (deep === void 0) { deep = false; }
     var clonedObject;
     if (Array.isArray(object)) {
         clonedObject = [];

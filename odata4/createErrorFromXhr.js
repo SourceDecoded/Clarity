@@ -1,10 +1,10 @@
 "use strict";
-const ErrorResponse = require("../data/responses/ErrorResponse");
-const ValidationErrorResponse = require("../data/responses/ValidationErrorResponse");
-const ConnectionErrorResponse = require("../data/responses/ConnectionErrorResponse");
-const ForbiddenErrorResponse = require("../data/responses/ForbiddenErrorResponse");
-const UnauthorizedErrorResponse = require("../data/responses/UnauthorizedErrorResponse");
-const EntityNotFoundErrorResponse = require("../data/responses/EntityNotFoundErrorResponse");
+var ErrorResponse = require("../data/responses/ErrorResponse");
+var ValidationErrorResponse = require("../data/responses/ValidationErrorResponse");
+var ConnectionErrorResponse = require("../data/responses/ConnectionErrorResponse");
+var ForbiddenErrorResponse = require("../data/responses/ForbiddenErrorResponse");
+var UnauthorizedErrorResponse = require("../data/responses/UnauthorizedErrorResponse");
+var EntityNotFoundErrorResponse = require("../data/responses/EntityNotFoundErrorResponse");
 module.exports = function (error, entity) {
     var data;
     var err;

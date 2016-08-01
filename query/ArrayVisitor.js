@@ -1,5 +1,10 @@
 "use strict";
-const ExpressionVisitor = require("./ExpressionVisitor");
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var ExpressionVisitor = require("./ExpressionVisitor");
 var singleQuotesRegEx = /\'/gi;
 var backSlashRegEx = /\\/gi;
 var escapeSpecialCharacters = function (value) {
@@ -22,28 +27,32 @@ var toJavascriptValue = function (value) {
         return "new Date(" + value.getTime() + ")";
     }
 };
-class ArrayVisitor extends ExpressionVisitor {
-    createGetPropertyValue(property) {
-        return "function(entity){return " + property + ";}";
+var ArrayVisitor = (function (_super) {
+    __extends(ArrayVisitor, _super);
+    function ArrayVisitor() {
+        _super.apply(this, arguments);
     }
+    ArrayVisitor.prototype.createGetPropertyValue = function (property) {
+        return "function(entity){return " + property + ";}";
+    };
     ;
-    isIn(left, array) {
+    ArrayVisitor.prototype.isIn = function (left, array) {
         return "(" + array.map(function (value) {
             return left + " === " + toJavascriptValue(value);
         }).join(" || ") + ")";
-    }
-    isNotIn(left, array) {
+    };
+    ArrayVisitor.prototype.isNotIn = function (left, array) {
         return "(" + array.map(function (value) {
             return left + " !== " + toJavascriptValue(value);
         }).join(" && ") + ")";
-    }
-    ascending(namespace) {
+    };
+    ArrayVisitor.prototype.ascending = function (namespace) {
         return "function(itemA, itemB){ var a = (" + this.createGetPropertyValue(namespace) + ")(itemA); if (typeof a === 'string'){ a = a.toLowerCase();  } var b = (" + this.createGetPropertyValue(namespace) + ")(itemB); if (typeof b === 'string'){ b = b.toLowerCase();  } if (a === b){ return 0; } else if (a < b){ return -1; } else if (a > b){ return 1; }}";
-    }
-    descending(namespace) {
+    };
+    ArrayVisitor.prototype.descending = function (namespace) {
         return "function(itemA, itemB){ var a = (" + this.createGetPropertyValue(namespace) + ")(itemA); if (typeof a === 'string'){ a = a.toLowerCase();  } var b = (" + this.createGetPropertyValue(namespace) + ")(itemB); if (typeof b === 'string'){ b = b.toLowerCase();  } if (a === b){ return 0; } else if (a > b){ return -1; } else if (a < b){ return 1; }}";
-    }
-    orderBy() {
+    };
+    ArrayVisitor.prototype.orderBy = function () {
         var result = Array.prototype.slice.call(arguments, 0);
         var fnString;
         if (result.length > 0) {
@@ -56,11 +65,11 @@ class ArrayVisitor extends ExpressionVisitor {
         else {
             return function (a, b) { return -1; };
         }
-    }
-    where() {
+    };
+    ArrayVisitor.prototype.where = function () {
         return new Function("entity", "return " + (this["and"].apply(this, arguments) || "true") + ";");
-    }
-    and() {
+    };
+    ArrayVisitor.prototype.and = function () {
         var children = Array.prototype.slice.call(arguments, 0);
         children = children.filter(function (expression) {
             return expression ? true : false;
@@ -70,8 +79,8 @@ class ArrayVisitor extends ExpressionVisitor {
             return "";
         }
         return "(" + joined + ")";
-    }
-    or() {
+    };
+    ArrayVisitor.prototype.or = function () {
         var children = Array.prototype.slice.call(arguments, 0);
         children = children.filter(function (expression) {
             return expression ? true : false;
@@ -81,76 +90,77 @@ class ArrayVisitor extends ExpressionVisitor {
             return "";
         }
         return "(" + joined + ")";
-    }
-    equalTo(left, right) {
+    };
+    ArrayVisitor.prototype.equalTo = function (left, right) {
         return left + " === " + right;
-    }
-    notEqualTo(left, right) {
+    };
+    ArrayVisitor.prototype.notEqualTo = function (left, right) {
         return left + " !== " + right;
-    }
-    greaterThan(left, right) {
+    };
+    ArrayVisitor.prototype.greaterThan = function (left, right) {
         return left + " > " + right;
-    }
-    lessThan(left, right) {
+    };
+    ArrayVisitor.prototype.lessThan = function (left, right) {
         return left + " < " + right;
-    }
-    greaterThanOrEqualTo(left, right) {
+    };
+    ArrayVisitor.prototype.greaterThanOrEqualTo = function (left, right) {
         return left + " >= " + right;
-    }
-    lessThanOrEqualTo(left, right) {
+    };
+    ArrayVisitor.prototype.lessThanOrEqualTo = function (left, right) {
         return left + " <= " + right;
-    }
-    not(left, right) {
+    };
+    ArrayVisitor.prototype.not = function (left, right) {
         return left + " !== " + right;
-    }
-    constant(expression) {
+    };
+    ArrayVisitor.prototype.constant = function (expression) {
         return expression.value;
-    }
-    property(expression) {
+    };
+    ArrayVisitor.prototype.property = function (expression) {
         return expression.value;
-    }
-    propertyAccess(type, property) {
+    };
+    ArrayVisitor.prototype.propertyAccess = function (type, property) {
         return type + "['" + property + "']";
-    }
-    type(type) {
+    };
+    ArrayVisitor.prototype.type = function (type) {
         return "entity";
-    }
-    substringOf(namespace, value) {
+    };
+    ArrayVisitor.prototype.substringOf = function (namespace, value) {
         return this.nullCheck(namespace, namespace + ".toLowerCase().indexOf(" + value.toLowerCase() + ") >= 0");
-    }
-    startsWith(namespace, value) {
+    };
+    ArrayVisitor.prototype.startsWith = function (namespace, value) {
         return this.nullCheck(namespace, namespace + ".toLowerCase().indexOf(" + value.toLowerCase() + ") === 0");
-    }
-    endsWith(namespace, value) {
+    };
+    ArrayVisitor.prototype.endsWith = function (namespace, value) {
         return this.nullCheck(namespace, namespace + ".toLowerCase().indexOf(" + value.toLowerCase() + ") === " + namespace + ".length - " + (value.length - 2));
-    }
-    null(expression) {
+    };
+    ArrayVisitor.prototype.null = function (expression) {
         return "null";
-    }
-    date(expression) {
+    };
+    ArrayVisitor.prototype.date = function (expression) {
         return toJavascriptValue(expression.value);
-    }
-    string(expression) {
+    };
+    ArrayVisitor.prototype.string = function (expression) {
         return toJavascriptValue(expression.value);
-    }
-    guid(expression) {
+    };
+    ArrayVisitor.prototype.guid = function (expression) {
         return this.string(expression);
-    }
-    number(expression) {
+    };
+    ArrayVisitor.prototype.number = function (expression) {
         return toJavascriptValue(expression.value);
-    }
-    boolean(expression) {
+    };
+    ArrayVisitor.prototype.boolean = function (expression) {
         return toJavascriptValue(expression.value);
-    }
-    nullCheck(namespace, stringExpression) {
+    };
+    ArrayVisitor.prototype.nullCheck = function (namespace, stringExpression) {
         return namespace + " != null ? " + stringExpression + " : false";
-    }
-    array(expression) {
+    };
+    ArrayVisitor.prototype.array = function (expression) {
         return expression.value;
-    }
-    expression(expression) {
+    };
+    ArrayVisitor.prototype.expression = function (expression) {
         return expression.value;
-    }
-}
+    };
+    return ArrayVisitor;
+}(ExpressionVisitor));
 module.exports = ArrayVisitor;
 //# sourceMappingURL=ArrayVisitor.js.map

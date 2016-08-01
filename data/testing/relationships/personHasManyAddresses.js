@@ -1,6 +1,6 @@
 "use strict";
-const Person = require("../Person");
-const Address = require("../Address");
+var Person = require("../Person");
+var Address = require("../Address");
 module.exports = {
     type: Person,
     hasKey: "id",

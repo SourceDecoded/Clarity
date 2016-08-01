@@ -1,12 +1,12 @@
 "use strict";
-class RigidBody {
-    constructor(rigidBody) {
+var RigidBody = (function () {
+    function RigidBody(rigidBody) {
         this.body = rigidBody;
         this.type = "body";
         this.width = 0;
         this.height = 0;
     }
-    updateBounds(view) {
+    RigidBody.prototype.updateBounds = function (view) {
         if (this.body.circleRadius) {
             var radius = this.body.circleRadius;
             var diameter = radius * 2;
@@ -32,16 +32,17 @@ class RigidBody {
             view.width = right - left;
             view.height = bottom - top;
         }
-    }
-    addedToView(view) {
+    };
+    RigidBody.prototype.addedToView = function (view) {
         this.view = view;
         this.updateBounds(view);
         this.height = this.view.height;
         this.width = this.view.width;
-    }
-    update() {
+    };
+    RigidBody.prototype.update = function () {
         this.updateBounds(this.view);
-    }
-}
+    };
+    return RigidBody;
+}());
 module.exports = RigidBody;
 //# sourceMappingURL=RigidBody.js.map

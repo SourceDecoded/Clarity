@@ -1,13 +1,13 @@
 "use strict";
-const Future = require("../async/Future");
-const toCamelCasedProperties = require("./toCamelCasedProperties");
-const toPascalCasedProperties = require("./toPascalCasedProperties");
-const ValidationErrorResponse = require("../data/responses/ValidationErrorResponse");
-const ConnectionErrorResponse = require("../data/responses/ConnectionErrorResponse");
-const ForbiddenErrorResponse = require("../data/responses/ForbiddenErrorResponse");
-const UnauthorizedErrorResponse = require("../data/responses/UnauthorizedErrorResponse");
-const EntityNotFoundErrorResponse = require("../data/responses/EntityNotFoundErrorResponse");
-const ErrorResponse = require("../data/responses/ErrorResponse");
+var Future = require("../async/Future");
+var toCamelCasedProperties = require("./toCamelCasedProperties");
+var toPascalCasedProperties = require("./toPascalCasedProperties");
+var ValidationErrorResponse = require("../data/responses/ValidationErrorResponse");
+var ConnectionErrorResponse = require("../data/responses/ConnectionErrorResponse");
+var ForbiddenErrorResponse = require("../data/responses/ForbiddenErrorResponse");
+var UnauthorizedErrorResponse = require("../data/responses/UnauthorizedErrorResponse");
+var EntityNotFoundErrorResponse = require("../data/responses/EntityNotFoundErrorResponse");
+var ErrorResponse = require("../data/responses/ErrorResponse");
 var parseError = function (xhr) {
     var text = xhr.responseText;
     if (text && typeof text === "string") {
@@ -21,8 +21,10 @@ var parseError = function (xhr) {
     }
     return "";
 };
-class OData4DataConverter {
-    handleResponseAsync(xhr) {
+var OData4DataConverter = (function () {
+    function OData4DataConverter() {
+    }
+    OData4DataConverter.prototype.handleResponseAsync = function (xhr) {
         var json;
         if (typeof xhr === "undefined" || xhr === null) {
             throw new Error("Null Argument Exception: xhr is undefined or null");
@@ -37,8 +39,8 @@ class OData4DataConverter {
         catch (e) {
             return Future.fromError(new Error("XHR response contains invalid json."));
         }
-    }
-    handleRequestAsync(options) {
+    };
+    OData4DataConverter.prototype.handleRequestAsync = function (options) {
         var data = options.data;
         try {
             if (typeof data === "object" && data !== null) {
@@ -50,8 +52,8 @@ class OData4DataConverter {
         catch (e) {
             return Future.fromError(new Error("The data property needs to be an object."));
         }
-    }
-    handleErrorResponseAsync(xhr) {
+    };
+    OData4DataConverter.prototype.handleErrorResponseAsync = function (xhr) {
         var error;
         var message = parseError(xhr);
         if (xhr.status === 0) {
@@ -79,8 +81,9 @@ class OData4DataConverter {
         }
         error.xhr = xhr;
         return Future.fromError(error);
-    }
+    };
     ;
-}
+    return OData4DataConverter;
+}());
 module.exports = OData4DataConverter;
 //# sourceMappingURL=OData4DataConverter.js.map

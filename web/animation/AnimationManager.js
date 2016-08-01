@@ -1,6 +1,6 @@
 "use strict";
-class AnimationManager {
-    constructor(timer) {
+var AnimationManager = (function () {
+    function AnimationManager(timer) {
         this._currentRequestAnimationFrame = null;
         this._animations = [];
         this._lastTime = 0;
@@ -13,21 +13,21 @@ class AnimationManager {
         this._requestCallback = this._requestCallback.bind(this);
         this.setFramesPerSecond(this._fps);
     }
-    setFramesPerSecond(fps) {
+    AnimationManager.prototype.setFramesPerSecond = function (fps) {
         this._fps = fps;
         this._refreshRateInMilliseconds = 1000 / fps;
-    }
-    getFramesPerSecond() {
+    };
+    AnimationManager.prototype.getFramesPerSecond = function () {
         return this._fps;
-    }
-    checkRequestToStartOrStop() {
+    };
+    AnimationManager.prototype.checkRequestToStartOrStop = function () {
         var self = this;
         var animations = this._animations;
         if (this._currentRequestAnimationFrame === null && animations.length > 0) {
             this._currentRequestAnimationFrame = requestAnimationFrame(this._requestCallback);
         }
-    }
-    tick(time) {
+    };
+    AnimationManager.prototype.tick = function (time) {
         var x;
         var self;
         var animation;
@@ -53,23 +53,24 @@ class AnimationManager {
         else {
             this._currentRequestAnimationFrame = requestAnimationFrame(this._requestCallback);
         }
-    }
-    now() {
+    };
+    AnimationManager.prototype.now = function () {
         return this._timer.now();
-    }
-    register(animation) {
+    };
+    AnimationManager.prototype.register = function (animation) {
         var index = this._animations.indexOf(animation);
         if (index === -1) {
             this._animations.push(animation);
             this.checkRequestToStartOrStop();
         }
-    }
-    unregister(animation) {
+    };
+    AnimationManager.prototype.unregister = function (animation) {
         var index = this._animations.indexOf(animation);
         if (index >= 0) {
             this._animations.splice(index, 1);
         }
-    }
-}
+    };
+    return AnimationManager;
+}());
 module.exports = AnimationManager;
 //# sourceMappingURL=AnimationManager.js.map

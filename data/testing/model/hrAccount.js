@@ -1,6 +1,6 @@
 "use strict";
-const HrAccount = require("../HrAccount");
-const EdmPackage = require("../../Edm");
+var HrAccount = require("../HrAccount");
+var EdmPackage = require("../../Edm");
 module.exports = {
     type: HrAccount,
     collectionName: "hrAccounts",

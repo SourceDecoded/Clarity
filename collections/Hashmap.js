@@ -1,11 +1,11 @@
 "use strict";
-const Guid = require("../util/Guid");
-class Hashmap {
-    constructor() {
+var Guid = require("../util/Guid");
+var Hashmap = (function () {
+    function Hashmap() {
         this.hash = {};
         this.keyToObjectKey = {};
     }
-    add(key, object) {
+    Hashmap.prototype.add = function (key, object) {
         if (key == null) {
             throw new Error("Cannot add an object with a null or undefined key. object: " + object);
         }
@@ -19,9 +19,9 @@ class Hashmap {
         }
         this.keyToObjectKey[key._hash] = key;
         this.hash[key._hash] = object;
-    }
+    };
     ;
-    get(key) {
+    Hashmap.prototype.get = function (key) {
         if (key == null) {
             return null;
         }
@@ -32,9 +32,9 @@ class Hashmap {
             return this.hash[key._hash];
         }
         return null;
-    }
+    };
     ;
-    remove(key) {
+    Hashmap.prototype.remove = function (key) {
         if (key === null || typeof key === "undefined") {
             return null;
         }
@@ -52,15 +52,16 @@ class Hashmap {
             return value;
         }
         return null;
-    }
+    };
     ;
-    clear() {
-        this.getKeys().forEach((key) => {
-            this.remove(key);
+    Hashmap.prototype.clear = function () {
+        var _this = this;
+        this.getKeys().forEach(function (key) {
+            _this.remove(key);
         });
-    }
+    };
     ;
-    hasKey(key) {
+    Hashmap.prototype.hasKey = function (key) {
         if (key == null) {
             return false;
         }
@@ -71,38 +72,41 @@ class Hashmap {
             return true;
         }
         return false;
-    }
+    };
     ;
-    getKeys() {
+    Hashmap.prototype.getKeys = function () {
         var keys = [];
         var keyToObjectKey = this.keyToObjectKey;
-        Object.keys(this.hash).forEach((key) => {
+        Object.keys(this.hash).forEach(function (key) {
             keys.push(keyToObjectKey[key]);
         });
         return keys;
-    }
+    };
     ;
-    getValues() {
+    Hashmap.prototype.getValues = function () {
+        var _this = this;
         var values = [];
         var keys = this.getKeys();
-        keys.forEach((key) => {
-            values.push(this.get(key));
+        keys.forEach(function (key) {
+            values.push(_this.get(key));
         });
         return values;
-    }
+    };
     ;
-    copy() {
+    Hashmap.prototype.copy = function () {
+        var _this = this;
         var copy = new Hashmap();
-        this.getKeys().forEach((key) => {
-            copy.add(key, this.get(key));
+        this.getKeys().forEach(function (key) {
+            copy.add(key, _this.get(key));
         });
         return copy;
-    }
+    };
     ;
-    getItemCount() {
+    Hashmap.prototype.getItemCount = function () {
         return Object.keys(this.hash).length;
-    }
+    };
     ;
-}
+    return Hashmap;
+}());
 module.exports = Hashmap;
 //# sourceMappingURL=Hashmap.js.map

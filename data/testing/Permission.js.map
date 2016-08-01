@@ -1,1 +1,1 @@
-{"version":3,"file":"Permission.js","sourceRoot":"","sources":["Permission.ts"],"names":[],"mappings":";AAAA;IAAA;QACI,OAAE,GAAG,IAAI,CAAC;QACV,SAAI,GAAG,IAAI,CAAC;QACZ,WAAM,GAAG,EAAE,CAAC;IAChB,CAAC;AAAD,CAAC;AAED,iBAAS,UAAU,CAAC"}
+{"version":3,"file":"Permission.js","sourceRoot":"","sources":["Permission.ts"],"names":[],"mappings":";AAAA;IAAA;QACI,OAAE,GAAG,IAAI,CAAC;QACV,SAAI,GAAG,IAAI,CAAC;QACZ,WAAM,GAAG,EAAE,CAAC;IAChB,CAAC;IAAD,iBAAC;AAAD,CAAC,AAJD,IAIC;AAED,iBAAS,UAAU,CAAC"}

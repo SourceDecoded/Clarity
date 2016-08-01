@@ -1,1 +1,1 @@
-{"version":3,"file":"PersonToPermission.js","sourceRoot":"","sources":["PersonToPermission.ts"],"names":[],"mappings":";AAAA;IAAA;QACI,aAAQ,GAAG,IAAI,CAAC;QAChB,iBAAY,GAAG,IAAI,CAAC;IACxB,CAAC;AAAD,CAAC;AAED,iBAAS,kBAAkB,CAAC"}
+{"version":3,"file":"PersonToPermission.js","sourceRoot":"","sources":["PersonToPermission.ts"],"names":[],"mappings":";AAAA;IAAA;QACI,aAAQ,GAAG,IAAI,CAAC;QAChB,iBAAY,GAAG,IAAI,CAAC;IACxB,CAAC;IAAD,yBAAC;AAAD,CAAC,AAHD,IAGC;AAED,iBAAS,kBAAkB,CAAC"}

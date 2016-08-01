@@ -1,5 +1,10 @@
 "use strict";
-const Animation = require("./Animation");
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var Animation = require("./Animation");
 var numberUnitRegEx = /^(\-?\d*\.?\d+)+(.*?)$/i;
 var rgbRegEx = /^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i;
 var rgbaRegEx = /^rgba\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+|\d\.\d+)\s*\)$/i;
@@ -37,9 +42,10 @@ var getRgbWithInRangeValue = function (value) {
     value = value > 255 ? 255 : value;
     return value;
 };
-class ElementAnimation extends Animation {
-    constructor(config) {
-        super(config);
+var ElementAnimation = (function (_super) {
+    __extends(ElementAnimation, _super);
+    function ElementAnimation(config) {
+        _super.call(this, config);
         this.mapping = {
             width: { handler: "numberUnitHandler", alias: "width" },
             height: { handler: "numberUnitHandler", alias: "height" },
@@ -93,14 +99,14 @@ class ElementAnimation extends Animation {
         this.prepareTransformValues();
         this.currentValues = {};
     }
-    setCssText() {
+    ElementAnimation.prototype.setCssText = function () {
         var element = this._element;
         var currentValues = this.currentValues;
         var cssText = Object.keys(currentValues).forEach(function (property) {
             return element.style[property] = currentValues[property];
         });
-    }
-    saveCurrentValues() {
+    };
+    ElementAnimation.prototype.saveCurrentValues = function () {
         var element = this._element;
         element.style.cssText.split(";").reduce(function (currentCss, css) {
             var parts = css.split(":");
@@ -111,8 +117,8 @@ class ElementAnimation extends Animation {
             }
             return currentCss;
         }, this.currentValues);
-    }
-    render() {
+    };
+    ElementAnimation.prototype.render = function () {
         var progress = this._progress;
         var properties = this._properties;
         var propertyHandlerName;
@@ -129,8 +135,8 @@ class ElementAnimation extends Animation {
         }
         this.setCssText();
         return this;
-    }
-    getBeginningValue(property) {
+    };
+    ElementAnimation.prototype.getBeginningValue = function (property) {
         var beginningValue = this._beginningValues[property];
         var properties = this._properties;
         if (typeof beginningValue === "undefined") {
@@ -150,8 +156,8 @@ class ElementAnimation extends Animation {
             throw new Error("Couldn't find beginning value for property: " + property + ". Try setting a 'from' value in the configuration of the aniimation.");
         }
         return beginningValue;
-    }
-    rgbaHandler(beginningValue, endingValue, progress, duration, easingFunction) {
+    };
+    ElementAnimation.prototype.rgbaHandler = function (beginningValue, endingValue, progress, duration, easingFunction) {
         var value;
         var beginningValues = beginningValue.match(rgbaRegEx);
         var endingValues = endingValue.match(rgbaRegEx);
@@ -172,8 +178,8 @@ class ElementAnimation extends Animation {
         blue = getRgbWithInRangeValue(blue);
         value = "rgb(" + red + "," + green + "," + blue + ")";
         return value;
-    }
-    rgbHandler(beginningValue, endingValue, progress, duration, easingFunction) {
+    };
+    ElementAnimation.prototype.rgbHandler = function (beginningValue, endingValue, progress, duration, easingFunction) {
         var value;
         var beginningValues = beginningValue.match(rgbRegEx);
         var endingValues = endingValue.match(rgbRegEx);
@@ -227,8 +233,8 @@ class ElementAnimation extends Animation {
         blue = getRgbWithInRangeValue(blue);
         value = "rgb(" + red + "," + green + "," + blue + ")";
         return value;
-    }
-    prepareTransformValues() {
+    };
+    ElementAnimation.prototype.prepareTransformValues = function () {
         var element = this._element;
         element.scaleX = element.scaleX || "1";
         element.scaleY = element.scaleY || "1";
@@ -239,8 +245,8 @@ class ElementAnimation extends Animation {
         element.translateX = element.translateX || "0";
         element.translateY = element.translateY || "0";
         element.translateZ = element.translateZ || "0";
-    }
-    applyTransform() {
+    };
+    ElementAnimation.prototype.applyTransform = function () {
         var element = this._element;
         var transform = "scaleX(" + element.scaleX + ") scaleY(" + element.scaleY + ") scaleZ(" + element.scaleZ + ")";
         transform += " rotateX(" + element.rotateX + ") rotateY(" + element.rotateY + ") rotateZ(" + element.rotateZ + ")";
@@ -249,8 +255,8 @@ class ElementAnimation extends Animation {
         this.currentValues["mozTransform"] = transform;
         this.currentValues["msTransform"] = transform;
         this.currentValues["transform"] = transform;
-    }
-    scaleXHandler(property, progress) {
+    };
+    ElementAnimation.prototype.scaleXHandler = function (property, progress) {
         var element = this._element;
         var beginningValue = parseFloat(this.getBeginningValue(property));
         var endingValue = parseFloat(this.getEndingValue(property));
@@ -259,15 +265,15 @@ class ElementAnimation extends Animation {
         var value = this.numberHandler(beginningValue, endingValue, progress, duration, easingFunction);
         element[property] = value;
         this.applyTransform();
-    }
-    rotateXHandler(property, progress) {
+    };
+    ElementAnimation.prototype.rotateXHandler = function (property, progress) {
         var element = this._element;
         var value;
         value = this.calculateNumberUnit(property, progress);
         element[property] = value;
         this.applyTransform();
-    }
-    calculateColor(property, progress) {
+    };
+    ElementAnimation.prototype.calculateColor = function (property, progress) {
         var value;
         var beginningValue = this.getBeginningValue(property);
         var endingValue = this.getEndingValue(property);
@@ -282,14 +288,14 @@ class ElementAnimation extends Animation {
             endingValue = convertHexToRgb(endingValue);
         }
         return this.rgbHandler(beginningValue, endingValue, progress, duration, easingFunction);
-    }
-    colorHandler(property, progress) {
+    };
+    ElementAnimation.prototype.colorHandler = function (property, progress) {
         var element = this._element;
         var value = this.calculateColor(property, progress);
         value = this._properties[property].isImportant ? value + " !important" : value;
         this.currentValues[property] = value;
-    }
-    numberHandler(beginningValue, endingValue, progress, duration, easingFunction) {
+    };
+    ElementAnimation.prototype.numberHandler = function (beginningValue, endingValue, progress, duration, easingFunction) {
         var value;
         var change = endingValue - beginningValue;
         var currentTime = progress * duration;
@@ -300,8 +306,8 @@ class ElementAnimation extends Animation {
             value = endingValue;
         }
         return value.toFixed(5);
-    }
-    calculateNumberUnit(property, progress) {
+    };
+    ElementAnimation.prototype.calculateNumberUnit = function (property, progress) {
         var value;
         var beginningValue = this.getBeginningValue(property);
         var endingValue = this.getEndingValue(property);
@@ -318,14 +324,14 @@ class ElementAnimation extends Animation {
         var endingFloat = Math.round(parseFloat(endingResults[1]) * 100) / 100;
         var value = this.numberHandler(beginningFloat, endingFloat, progress, duration, easingFunction);
         return value += unit;
-    }
-    numberUnitHandler(property, progress) {
+    };
+    ElementAnimation.prototype.numberUnitHandler = function (property, progress) {
         var element = this._element;
         var value = this.calculateNumberUnit(property, progress);
         value = this._properties[property].isImportant ? value + " !important" : value;
         this.currentValues[property] = value;
-    }
-    caclulateDecimal(property, progress) {
+    };
+    ElementAnimation.prototype.caclulateDecimal = function (property, progress) {
         var value;
         var beginningValue = this.getBeginningValue(property);
         var endingValue = this.getEndingValue(property);
@@ -334,13 +340,14 @@ class ElementAnimation extends Animation {
         beginningValue = parseFloat(beginningValue);
         endingValue = parseFloat(endingValue);
         return this.numberHandler(beginningValue, endingValue, progress, duration, easingFunction);
-    }
-    decimalHandler(property, progress) {
+    };
+    ElementAnimation.prototype.decimalHandler = function (property, progress) {
         var element = this._element;
         var value = this.caclulateDecimal(property, progress);
         value = this._properties[property].isImportant ? value + " !important" : value;
         this.currentValues[property] = value;
-    }
-}
+    };
+    return ElementAnimation;
+}(Animation));
 module.exports = ElementAnimation;
 //# sourceMappingURL=ElementAnimation.js.map

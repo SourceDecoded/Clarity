@@ -1,9 +1,10 @@
 "use strict";
-class PersonToPermission {
-    constructor() {
+var PersonToPermission = (function () {
+    function PersonToPermission() {
         this.personId = null;
         this.permissionId = null;
     }
-}
+    return PersonToPermission;
+}());
 module.exports = PersonToPermission;
 //# sourceMappingURL=PersonToPermission.js.map

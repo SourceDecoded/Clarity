@@ -1,6 +1,6 @@
 "use strict";
-const ImageCache = require("./ImageCache");
-const ImageLoader = require("./ImageLoader");
+var ImageCache = require("./ImageCache");
+var ImageLoader = require("./ImageLoader");
 function CanvasCache(target) {
     target.prototype.imageCache = exports.cache;
 }

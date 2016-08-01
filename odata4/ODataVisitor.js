@@ -1,7 +1,12 @@
 "use strict";
-const ExpressionVisitor = require("../query/ExpressionVisitor");
-const ODataAnnotation = require("./ODataAnnotation");
-const EdmPackage = require("../data/Edm");
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var ExpressionVisitor = require("../query/ExpressionVisitor");
+var ODataAnnotation = require("./ODataAnnotation");
+var EdmPackage = require("../data/Edm");
 require("../number/toEnumString");
 var getNavigationProperties = function (edm, model) {
     var propertyModels = {};
@@ -74,9 +79,10 @@ var getOdataNamespace = function (Type) {
     }
     return Type.annotations[index].namespace;
 };
-class ODataVisitor extends ExpressionVisitor {
-    constructor(config) {
-        super();
+var ODataVisitor = (function (_super) {
+    __extends(ODataVisitor, _super);
+    function ODataVisitor(config) {
+        _super.call(this);
         config = this.config = (config || {});
         this.scope = config.scope || "";
         if (typeof config.model === "undefined") {
@@ -91,7 +97,7 @@ class ODataVisitor extends ExpressionVisitor {
         this.toServiceNamespace = toServiceNamespace;
         this.convertPropertiesToPascalCase = typeof config.convertPropertiesToPascalCase === "boolean" ? config.convertPropertiesToPascalCase : true;
     }
-    getValue(key, value) {
+    ODataVisitor.prototype.getValue = function (key, value) {
         var property = this.currentModel.properties[key];
         var dateString;
         if (property) {
@@ -133,8 +139,8 @@ class ODataVisitor extends ExpressionVisitor {
         else {
             throw new Error("Couldn't find a '" + key + "' property definitions on '" + this.model.collectionName + "'.");
         }
-    }
-    isIn(propertyObject, array) {
+    };
+    ODataVisitor.prototype.isIn = function (propertyObject, array) {
         var self = this;
         if (array.length > 0) {
             return "(" + array.map(function (value) {
@@ -144,8 +150,8 @@ class ODataVisitor extends ExpressionVisitor {
         else {
             return "";
         }
-    }
-    isNotIn(propertyObject, array) {
+    };
+    ODataVisitor.prototype.isNotIn = function (propertyObject, array) {
         var self = this;
         if (array.length > 0) {
             return "(" + array.map(function (value) {
@@ -155,26 +161,26 @@ class ODataVisitor extends ExpressionVisitor {
         else {
             return "";
         }
-    }
-    ascending(propertyObject) {
+    };
+    ODataVisitor.prototype.ascending = function (propertyObject) {
         return propertyObject.namespace + " asc";
-    }
-    descending(propertyObject) {
+    };
+    ODataVisitor.prototype.descending = function (propertyObject) {
         return propertyObject.namespace + " desc";
-    }
-    orderBy() {
+    };
+    ODataVisitor.prototype.orderBy = function () {
         var result = Array.prototype.slice.call(arguments, 0);
         var stringResult = result.join(", ");
         return stringResult ? "$orderby=" + stringResult : "";
-    }
-    count(propertyObject, value) {
+    };
+    ODataVisitor.prototype.count = function (propertyObject, value) {
         return "$count=true";
-    }
-    _and() {
+    };
+    ODataVisitor.prototype._and = function () {
         var children = Array.prototype.slice.call(arguments, 0);
         return children.join(" and ");
-    }
-    where() {
+    };
+    ODataVisitor.prototype.where = function () {
         var filterString = this["_and"].apply(this, arguments);
         if (filterString) {
             return "$filter=" + filterString;
@@ -182,34 +188,34 @@ class ODataVisitor extends ExpressionVisitor {
         else {
             return "";
         }
-    }
-    and() {
+    };
+    ODataVisitor.prototype.and = function () {
         if (arguments.length === 1) {
             return arguments[0];
         }
         var joined = this["_and"].apply(this, arguments);
         return "(" + joined + ")";
-    }
-    or() {
+    };
+    ODataVisitor.prototype.or = function () {
         var children = Array.prototype.slice.call(arguments, 0);
         if (children.length === 1) {
             return children[0];
         }
         return "(" + children.join(" or ") + ")";
-    }
-    equalTo(propertyObject, value) {
+    };
+    ODataVisitor.prototype.equalTo = function (propertyObject, value) {
         return propertyObject.namespace + " eq " + this.getValue(propertyObject.property, value);
-    }
-    notEqualTo(propertyObject, value) {
+    };
+    ODataVisitor.prototype.notEqualTo = function (propertyObject, value) {
         return propertyObject.namespace + " ne " + this.getValue(propertyObject.property, value);
-    }
-    constant(expression) {
+    };
+    ODataVisitor.prototype.constant = function (expression) {
         return expression.value;
-    }
-    property(expression) {
+    };
+    ODataVisitor.prototype.property = function (expression) {
         return expression.value;
-    }
-    propertyAccess(left, property) {
+    };
+    ODataVisitor.prototype.propertyAccess = function (left, property) {
         var properties;
         if (typeof left.value === "function") {
             var scope = this.scope ? this.scope + "/" : "";
@@ -232,123 +238,124 @@ class ODataVisitor extends ExpressionVisitor {
                 property: property
             };
         }
-    }
-    type(type) {
+    };
+    ODataVisitor.prototype.type = function (type) {
         this.currentModel = this.model;
         return type;
-    }
-    guid(expression) {
+    };
+    ODataVisitor.prototype.guid = function (expression) {
         return expression.value;
-    }
-    substring(propertyObject, startAt, endAt) {
+    };
+    ODataVisitor.prototype.substring = function (propertyObject, startAt, endAt) {
         return "substring(" + propertyObject.namespace + (startAt ? "," + startAt : "," + 0) + (endAt ? "," + endAt : "") + ")";
-    }
-    indexOf(propertyObject, value) {
+    };
+    ODataVisitor.prototype.indexOf = function (propertyObject, value) {
         if (typeof value !== "string") {
             throw new Error("indexOf only allows strings.");
         }
         return "indexof(" + propertyObject.namespace + "," + this.getValue(propertyObject.property, value) + ")";
-    }
-    toUpper(propertyObject) {
+    };
+    ODataVisitor.prototype.toUpper = function (propertyObject) {
         return "toupper(" + propertyObject.namespace + ")";
-    }
-    toLower(propertyObject) {
+    };
+    ODataVisitor.prototype.toLower = function (propertyObject) {
         return "tolower(" + propertyObject.namespace + ")";
-    }
-    trim(propertyObject) {
+    };
+    ODataVisitor.prototype.trim = function (propertyObject) {
         return "trim(" + propertyObject.namespace + ")";
-    }
-    concat(propertyObject, value) {
+    };
+    ODataVisitor.prototype.concat = function (propertyObject, value) {
         if (typeof value !== "string") {
             throw new Error("concat only allows strings.");
         }
         return "concat(" + propertyObject.namespace + "," + this.getValue(propertyObject.property, value) + ")";
-    }
-    substringOf(propertyObject, value) {
+    };
+    ODataVisitor.prototype.substringOf = function (propertyObject, value) {
         if (typeof value !== "string") {
             throw new Error("substringOf only allows strings.");
         }
         return "contains(" + propertyObject.namespace + "," + this.getValue(propertyObject.property, value) + ")";
-    }
-    startsWith(propertyObject, value) {
+    };
+    ODataVisitor.prototype.startsWith = function (propertyObject, value) {
         if (typeof value !== "string") {
             throw new Error("startsWith only allows strings.");
         }
         return "startswith(" + propertyObject.namespace + "," + this.getValue(propertyObject.property, value) + ")";
-    }
-    endsWith(propertyObject, value) {
+    };
+    ODataVisitor.prototype.endsWith = function (propertyObject, value) {
         if (typeof value !== "string") {
             throw new Error("endsWith only allows strings.");
         }
         return "endswith(" + propertyObject.namespace + "," + this.getValue(propertyObject.property, value) + ")";
-    }
-    null(expression) {
+    };
+    ODataVisitor.prototype.null = function (expression) {
         return null;
-    }
-    object(expression) {
+    };
+    ODataVisitor.prototype.object = function (expression) {
         return expression.value;
-    }
-    undefined(expression) {
+    };
+    ODataVisitor.prototype.undefined = function (expression) {
         return expression.value;
-    }
-    date(expression) {
+    };
+    ODataVisitor.prototype.date = function (expression) {
         return expression.value;
-    }
-    string(expression) {
+    };
+    ODataVisitor.prototype.string = function (expression) {
         return expression.value;
-    }
-    number(expression) {
+    };
+    ODataVisitor.prototype.number = function (expression) {
         return expression.value;
-    }
-    boolean(expression) {
+    };
+    ODataVisitor.prototype.boolean = function (expression) {
         return expression.value;
-    }
-    all(propertyObject, expression) {
+    };
+    ODataVisitor.prototype.all = function (propertyObject, expression) {
         var config = buildConfigForOneToManyTraversing(this.config, propertyObject.property);
         var parser = new ODataVisitor(config);
         return propertyObject.namespace + "/all(entity: " + parser.parse(expression) + ")";
-    }
-    any(propertyObject, expression) {
+    };
+    ODataVisitor.prototype.any = function (propertyObject, expression) {
         var config = buildConfigForOneToManyTraversing(this.config, propertyObject.property);
         var parser = new ODataVisitor(config);
         return propertyObject.namespace + "/any(entity: " + parser.parse(expression) + ")";
-    }
-    expression(expression) {
+    };
+    ODataVisitor.prototype.expression = function (expression) {
         return expression.value;
-    }
-    array(expression) {
+    };
+    ODataVisitor.prototype.array = function (expression) {
         return expression.value;
-    }
-    greaterThan(propertyObject, value) {
+    };
+    ODataVisitor.prototype.greaterThan = function (propertyObject, value) {
         return propertyObject.namespace + " gt " + this.getValue(propertyObject.property, value);
-    }
-    has(propertyObject, value) {
+    };
+    ODataVisitor.prototype.has = function (propertyObject, value) {
         return propertyObject.namespace + " has " + value;
-    }
-    lessThan(propertyObject, value) {
+    };
+    ODataVisitor.prototype.lessThan = function (propertyObject, value) {
         return propertyObject.namespace + " lt " + this.getValue(propertyObject.property, value);
-    }
-    greaterThanOrEqualTo(propertyObject, value) {
+    };
+    ODataVisitor.prototype.greaterThanOrEqualTo = function (propertyObject, value) {
         return propertyObject.namespace + " ge " + this.getValue(propertyObject.property, value);
-    }
-    lessThanOrEqualTo(propertyObject, value) {
+    };
+    ODataVisitor.prototype.lessThanOrEqualTo = function (propertyObject, value) {
         return propertyObject.namespace + " le " + this.getValue(propertyObject.property, value);
-    }
-    not(expression) {
+    };
+    ODataVisitor.prototype.not = function (expression) {
         return "not " + expression;
-    }
-    skip(value) {
+    };
+    ODataVisitor.prototype.skip = function (value) {
         if (value === 0) {
             return "";
         }
         return "$skip=" + value;
-    }
-    take(value) {
+    };
+    ODataVisitor.prototype.take = function (value) {
         if (value === Infinity) {
             return "";
         }
         return "$top=" + value;
-    }
-}
+    };
+    return ODataVisitor;
+}(ExpressionVisitor));
 module.exports = ODataVisitor;
 //# sourceMappingURL=ODataVisitor.js.map

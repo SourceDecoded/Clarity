@@ -1,5 +1,10 @@
 "use strict";
-const Animation = require("./Animation");
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var Animation = require("./Animation");
 var isVector = function (vector) {
     var vectorString;
     if (typeof vector.x !== "number" &&
@@ -44,9 +49,10 @@ var normalizeVector = function (vector) {
 var calculatePosition = function (from, to, percent) {
     return ((to - from) * percent) + from;
 };
-class ElementPathAnimation extends Animation {
-    constructor(config) {
-        super(config);
+var ElementPathAnimation = (function (_super) {
+    __extends(ElementPathAnimation, _super);
+    function ElementPathAnimation(config) {
+        _super.call(this, config);
         config = config || {};
         Animation.call(this, config);
         this._target = config.target;
@@ -80,7 +86,7 @@ class ElementPathAnimation extends Animation {
         this._points.forEach(normalizeVector);
         this.prepareTransformValues(this._target);
     }
-    prepareTransformValues(element) {
+    ElementPathAnimation.prototype.prepareTransformValues = function (element) {
         if (typeof element.style.scaleX === "undefined") {
             element._scaleX = "1";
             element._scaleY = "1";
@@ -92,8 +98,8 @@ class ElementPathAnimation extends Animation {
             element._translateY = "0";
             element._translateZ = "0";
         }
-    }
-    applyTransform() {
+    };
+    ElementPathAnimation.prototype.applyTransform = function () {
         var element = this._target;
         var transform = "scaleX(" + element._scaleX + ") scaleY(" + element._scaleY + ") scaleZ(" + element._scaleZ + ")";
         transform += " rotateX(" + element._rotateX + ") rotateY(" + element._rotateY + ") rotateZ(" + element._rotateZ + ")";
@@ -102,8 +108,8 @@ class ElementPathAnimation extends Animation {
         element.style.mozTransform = transform;
         element.style.msTransform = transform;
         element.style.transform = transform;
-    }
-    reduce(points, percent, index, easing) {
+    };
+    ElementPathAnimation.prototype.reduce = function (points, percent, index, easing) {
         if (typeof index === "undefined") {
             index = 0;
         }
@@ -123,8 +129,8 @@ class ElementPathAnimation extends Animation {
             return this.reduce(reducedPoints, percent, index + 1, easing);
         }
         return reducedPoints;
-    }
-    render() {
+    };
+    ElementPathAnimation.prototype.render = function () {
         var target = this._target;
         var unit = this._unit;
         var progress = this._progress;
@@ -136,6 +142,7 @@ class ElementPathAnimation extends Animation {
         target._translateZ = currentPosition[0].z + "px";
         this.applyTransform();
         return this;
-    }
-}
+    };
+    return ElementPathAnimation;
+}(Animation));
 //# sourceMappingURL=ElementPathAnimation.js.map

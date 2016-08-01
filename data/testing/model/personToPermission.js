@@ -1,6 +1,6 @@
 "use strict";
-const PersonToPermission = require("../PersonToPermission");
-const EdmPackage = require("../../Edm");
+var PersonToPermission = require("../PersonToPermission");
+var EdmPackage = require("../../Edm");
 module.exports = {
     type: PersonToPermission,
     properties: {

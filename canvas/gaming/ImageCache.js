@@ -1,33 +1,36 @@
 "use strict";
-const Future = require("../../async/Future");
-class ImageCache {
-    constructor(imageLoader) {
+var Future = require("../../async/Future");
+var ImageCache = (function () {
+    function ImageCache(imageLoader) {
         this.imageToCanvas = {};
         this.imageLoader = imageLoader;
     }
-    load(source) {
-        return this.imageLoader.load(source).chain((image) => {
+    ImageCache.prototype.load = function (source) {
+        var _this = this;
+        return this.imageLoader.load(source).chain(function (image) {
             var canvas = document.createElement("canvas");
             canvas.width = image.width;
             canvas.height = image.height;
             canvas.getContext("2d").drawImage(image, 0, 0);
-            this.imageToCanvas[source] = canvas;
+            _this.imageToCanvas[source] = canvas;
             return canvas;
         });
-    }
-    loadAll(sources) {
-        var futures = sources.map((source) => {
-            return this.load(source);
+    };
+    ImageCache.prototype.loadAll = function (sources) {
+        var _this = this;
+        var futures = sources.map(function (source) {
+            return _this.load(source);
         });
         return Future.all(futures);
-    }
-    getCanvas(source) {
+    };
+    ImageCache.prototype.getCanvas = function (source) {
         var canvas = this.imageToCanvas[source];
         if (!canvas) {
             throw new Error("Couldn't find image '" + source + "' in cache.");
         }
         return canvas;
-    }
-}
+    };
+    return ImageCache;
+}());
 module.exports = ImageCache;
 //# sourceMappingURL=ImageCache.js.map

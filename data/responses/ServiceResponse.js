@@ -1,11 +1,12 @@
 "use strict";
-class ServiceResponse {
-    constructor(message) {
+var ServiceResponse = (function () {
+    function ServiceResponse(message) {
         this.message = message;
     }
-    toString() {
+    ServiceResponse.prototype.toString = function () {
         return this.message;
-    }
-}
+    };
+    return ServiceResponse;
+}());
 module.exports = ServiceResponse;
 //# sourceMappingURL=ServiceResponse.js.map

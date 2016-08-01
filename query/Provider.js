@@ -1,12 +1,14 @@
 "use strict";
-const Future = require("../async/Future");
-const ExpressionPackage = require("./Expression");
-const Queryable = require("./Queryable");
+var Future = require("../async/Future");
+var ExpressionPackage = require("./Expression");
+var Queryable = require("./Queryable");
 var Expression = ExpressionPackage.Expression;
 var OperationExpression = ExpressionPackage.OperationExpression;
 var ValueExpression = ExpressionPackage.ValueExpression;
-class Provider {
-    count(queryable) {
+var Provider = (function () {
+    function Provider() {
+    }
+    Provider.prototype.count = function (queryable) {
         var oldExpression = queryable.getExpression();
         var expression = {};
         expression.where = oldExpression.where;
@@ -14,9 +16,9 @@ class Provider {
         return this.toArray(newQueryable).chain(function (array) {
             return array.length;
         });
-    }
+    };
     ;
-    any(queryable, func) {
+    Provider.prototype.any = function (queryable, func) {
         if (typeof func === "function") {
             queryable = queryable.where(func);
         }
@@ -28,9 +30,9 @@ class Provider {
                 return false;
             }
         });
-    }
+    };
     ;
-    all(queryable, func) {
+    Provider.prototype.all = function (queryable, func) {
         if (typeof func === "undefined") {
             return Future.fromResult(true);
         }
@@ -42,18 +44,18 @@ class Provider {
                 return results.length = length;
             });
         });
-    }
+    };
     ;
-    firstOrDefault(queryable, func) {
+    Provider.prototype.firstOrDefault = function (queryable, func) {
         if (typeof func === "function") {
             queryable = queryable.where(func);
         }
         return queryable.take(1).toArray().chain(function (results) {
             return results[0] || null;
         });
-    }
+    };
     ;
-    first(queryable, func) {
+    Provider.prototype.first = function (queryable, func) {
         if (typeof func === "function") {
             queryable = queryable.where(func);
         }
@@ -66,24 +68,24 @@ class Provider {
                 return Future.fromError(new Error("There wasn't a match."));
             }
         });
-    }
+    };
     ;
-    contains(queryable, func) {
+    Provider.prototype.contains = function (queryable, func) {
         if (typeof func === "function") {
             queryable = queryable.where(func);
         }
         return queryable.take(1).toArray().chain(function (results) {
             return results > 0;
         });
-    }
+    };
     ;
-    select(queryable, forEachFunc) {
+    Provider.prototype.select = function (queryable, forEachFunc) {
         return this.toArray(queryable).chain(function (array) {
             return array.map(forEachFunc);
         });
-    }
+    };
     ;
-    intersects(queryable, compareToQueryable) {
+    Provider.prototype.intersects = function (queryable, compareToQueryable) {
         return Future.all([this.toArray(queryable), compareToQueryable.toArray()]).chain(function (results) {
             var intersects = [];
             var array1 = results[0].value;
@@ -95,30 +97,32 @@ class Provider {
             });
             return intersects;
         });
-    }
+    };
     ;
-    toArrayWithCount(queryable) {
+    Provider.prototype.toArrayWithCount = function (queryable) {
+        var _this = this;
         var count;
-        return this.count(queryable).chain((c) => {
+        return this.count(queryable).chain(function (c) {
             count = c;
-        }).chain(() => {
-            return this.toArray(queryable);
-        }).chain((array) => {
+        }).chain(function () {
+            return _this.toArray(queryable);
+        }).chain(function (array) {
             return {
                 count: count,
                 array: array
             };
         });
-    }
+    };
     ;
-    toArray(queryable) {
+    Provider.prototype.toArray = function (queryable) {
         throw new Error("Provider hasn't implemented toArray and execute.");
-    }
+    };
     ;
     //This should always return a Future of an array of objects.
-    execute(queryable) {
+    Provider.prototype.execute = function (queryable) {
         return this.toArray(queryable);
-    }
-}
+    };
+    return Provider;
+}());
 module.exports = Provider;
 //# sourceMappingURL=Provider.js.map

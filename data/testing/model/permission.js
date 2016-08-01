@@ -1,6 +1,6 @@
 "use strict";
-const Permission = require("../Permission");
-const EdmPackage = require("../../Edm");
+var Permission = require("../Permission");
+var EdmPackage = require("../../Edm");
 module.exports = {
     type: Permission,
     collectionName: "permissions",

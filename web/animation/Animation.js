@@ -1,9 +1,9 @@
 "use strict";
-const Future = require("../../async/Future");
-const AnimationManager = require("./AnimationManager");
-const animationStateManager = require("./animationStateManager");
-const easings = require("./easings");
-const delayAsync = require("../../async/delayAsync");
+var Future = require("../../async/Future");
+var AnimationManager = require("./AnimationManager");
+var animationStateManager = require("./animationStateManager");
+var easings = require("./easings");
+var delayAsync = require("../../async/delayAsync");
 var makeTickPercentageObservers = function (observers) {
     for (var x = 0; x <= 100; x++) {
         observers[x] = [];
@@ -50,8 +50,8 @@ Observer.prototype.callback = function (event) {
 Observer.prototype.dispose = function () {
     return this.unbind();
 };
-class Animation {
-    constructor(config) {
+var Animation = (function () {
+    function Animation(config) {
         this.animationManager = new AnimationManager();
         config = config || {};
         this._target = config.target || {};
@@ -89,38 +89,38 @@ class Animation {
             this._easingFunction = easings.linear;
         }
     }
-    _saveBeginningValues() {
+    Animation.prototype._saveBeginningValues = function () {
         var target = this._target;
         var beginningValues = this._beginningValues;
         var properties = this._properties;
-        Object.keys(properties).forEach((property) => {
+        Object.keys(properties).forEach(function (property) {
             beginningValues[property] = target[property];
         });
-    }
-    play() {
+    };
+    Animation.prototype.play = function () {
         return this._currentState.play(this);
-    }
+    };
     ;
-    stop() {
+    Animation.prototype.stop = function () {
         this._currentState.stop(this);
         return this;
-    }
-    observeAtTick(ratio, callback) {
+    };
+    Animation.prototype.observeAtTick = function (ratio, callback) {
         var percentage = ratio * 100;
         if (typeof percentage === "number" && percentage >= 0 && percentage <= 100) {
             percentage = Math.floor(percentage);
             return this.observe(percentage.toString(), callback);
         }
         throw new Error("Invalid Argument Exception: percentage must be a decimal, and with in 0-1");
-    }
-    playToEndAsync(startAt) {
+    };
+    Animation.prototype.playToEndAsync = function (startAt) {
         var self = this;
         if (typeof startAt === "number" && startAt >= 0 && startAt <= 1) {
             self._progress = startAt;
         }
         return this.playToPercentageAsync(100);
-    }
-    playToPercentageAsync(percentage) {
+    };
+    Animation.prototype.playToPercentageAsync = function (percentage) {
         var self = this;
         var ratio = percentage / 100;
         percentage = parseInt(percentage, 10);
@@ -160,16 +160,16 @@ class Animation {
         }).chain(function () {
             return delayAsync(0);
         });
-    }
-    reverseToStartAsync(startAt) {
+    };
+    Animation.prototype.reverseToStartAsync = function (startAt) {
         var self = this;
         if (typeof startAt === "number" && startAt >= 0 && startAt <= 1) {
             self._progress = startAt;
         }
         return self.reverseToPercentageAsync(0);
-    }
+    };
     ;
-    reverseToPercentageAsync(percentage) {
+    Animation.prototype.reverseToPercentageAsync = function (percentage) {
         var self = this;
         var ratio = percentage / 100;
         percentage = parseInt(percentage, 10);
@@ -209,47 +209,47 @@ class Animation {
         }).chain(function () {
             return delayAsync(0);
         });
-    }
-    pause() {
+    };
+    Animation.prototype.pause = function () {
         return this._currentState.pause(this);
-    }
-    restart() {
+    };
+    Animation.prototype.restart = function () {
         return this._currentState.restart(this);
-    }
-    reverse() {
+    };
+    Animation.prototype.reverse = function () {
         return this._currentState.reverse(this);
-    }
-    notify(event) {
+    };
+    Animation.prototype.notify = function (event) {
         var type = event.type;
         if (Array.isArray(this._observers[type])) {
             this._observers[type].forEach(function (observer) {
                 observer.callback(event);
             });
         }
-    }
-    tick(time) {
+    };
+    Animation.prototype.tick = function (time) {
         var value = this._currentState.tick(this, time);
         return value;
-    }
-    invalidate() {
+    };
+    Animation.prototype.invalidate = function () {
         this._progress = 0;
         this._currentState = animationStateManager.pausedState;
         return this;
-    }
-    getProgress() {
+    };
+    Animation.prototype.getProgress = function () {
         return this._progress;
-    }
-    setTimeScale(timeScale) {
+    };
+    Animation.prototype.setTimeScale = function (timeScale) {
         this._timeScale = timeScale;
-    }
-    getTimeScale() {
+    };
+    Animation.prototype.getTimeScale = function () {
         return this._timeScale;
-    }
-    seek(progressValue, now) {
+    };
+    Animation.prototype.seek = function (progressValue, now) {
         this._currentState.seek(this, progressValue, now);
         return this;
-    }
-    observe(type, callback) {
+    };
+    Animation.prototype.observe = function (type, callback) {
         var self = this;
         if (typeof type !== "string") {
             throw new Error("Need to supply a type.");
@@ -266,8 +266,8 @@ class Animation {
         });
         callbacks.push(observer);
         return observer;
-    }
-    render() {
+    };
+    Animation.prototype.render = function () {
         var self = this;
         var progress = this._progress;
         var beginningValues = this._beginningValues;
@@ -310,9 +310,10 @@ class Animation {
             }
         }
         return this;
-    }
-}
-Animation.REPEAT_DEFAULT = 0;
-Animation.REPEAT_ALTERATE = 1;
+    };
+    Animation.REPEAT_DEFAULT = 0;
+    Animation.REPEAT_ALTERATE = 1;
+    return Animation;
+}());
 module.exports = Animation;
 //# sourceMappingURL=Animation.js.map
